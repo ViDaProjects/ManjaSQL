@@ -1,4 +1,4 @@
-import re 
+import re
 
 def extract_table_info(sql):
     # Encontrar o nome da tabela
@@ -13,20 +13,31 @@ def extract_table_info(sql):
     primary_key_match = re.search(r"PRIMARY KEY (([^)]+))", sql)
     primary_key = primary_key_match.group(1).split(",") if primary_key_match else []
 
-    return {"table_name": table_name, "columns": columns, "primary_key": primary_key}
+    return {"table_name": table_name, "columns": columns[1:], "primary_key": primary_key}
 
+def extract_all_tables(sql_content):
+    # Split SQL content into individual CREATE TABLE statements
+    create_table_statements = re.split(r'\bCREATE TABLE\b', sql_content)
+    
+    # Remove empty strings resulting from the split
+    create_table_statements = [statement.strip() for statement in create_table_statements if statement.strip()]
+
+    # Extract information for each table
+    all_table_info = []
+    for table_sql in create_table_statements:
+        table_info = extract_table_info("CREATE TABLE " + table_sql)  # Add "CREATE TABLE" back for parsing
+        all_table_info.append(table_info)
+
+    return all_table_info
 
 with open("tabela.sql", "r") as file:
     sql_content = file.read()
 
-
-table_info = extract_table_info(sql_content)
-
-print(table_info)
-
-
-print("Nome da Tabela:", table_info["table_name"])
-print("Campos:")
-for column in table_info["columns"]:
-    print(f"- {column['name']}: {column['type']} {column['constraints']}")
-print("Chave Primária:", table_info["primary_key"])
+all_tables_info = extract_all_tables(sql_content)
+print(all_tables_info)
+for table_info in all_tables_info:
+    print("\nNome da Tabela:", table_info["table_name"])
+    print("Campos:")
+    for column in table_info["columns"]:
+        print(f"- {column['name']}: {column['type']} {column['constraints']}")
+    print("Chave Primária:", table_info["primary_key"])

@@ -1,0 +1,31 @@
+{
+    "employees": {
+        "Structure": [
+            {
+                "Column": "emp_no",
+                "Type": "INT",
+                "Null": "NOT NULL"
+            },
+            {
+                "Column": "birth_date",
+                "Type": "DATE",
+                "Null": "NOT NULL"
+            }
+        ],
+        "Data": []
+    },
+    "departments": {
+        "Structure": [],
+        "Data": []
+    },
+    "dept_manager": {
+        "Structure": [
+            {
+                "Column": "emp_no",
+                "Type": "INT",
+                "Null": "NOT NULL"
+            }
+        ],
+        "Data": []
+    }
+}
