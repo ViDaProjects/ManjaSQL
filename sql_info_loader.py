@@ -1,6 +1,9 @@
 import re
 import json
 
+'''Colocar enum como parte do type
+Colocar tipo de key no mesmo nível de "importância" que o column'''
+
 def parse_keys(column_lines):
     key_words = {
         "PRIMARY": "PRIMARY KEY",
