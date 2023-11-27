@@ -1,4 +1,5 @@
 import re
+import json
 
 def extract_table_info(sql):
     # Encontrar o nome da tabela
@@ -30,14 +31,36 @@ def extract_all_tables(sql_content):
 
     return all_table_info
 
-with open("tabela.sql", "r") as file:
-    sql_content = file.read()
+def print_tables(tables: list):
+    print("JSON STYLE DATA\n\n")
 
-all_tables_info = extract_all_tables(sql_content)
-print(all_tables_info)
-for table_info in all_tables_info:
-    print("\nNome da Tabela:", table_info["table_name"])
-    print("Campos:")
-    for column in table_info["columns"]:
-        print(f"- {column['name']}: {column['type']} {column['constraints']}")
-    print("Chave Primária:", table_info["primary_key"])
+    #print(tables)
+    print(json.dumps(tables, indent=4))
+
+    print("Data in SQL format\n\n")
+    for table_info in tables:
+        print("\nNome da Tabela:", table_info["table_name"])
+        print("Campos:")
+        for column in table_info["columns"]:
+            print(f"- {column['name']}: {column['type']} {column['constraints']}")
+        print("Chave Primária:", table_info["primary_key"])
+
+if __name__ == "__main__":
+    with open("tabela.sql", "r") as file:
+        sql_content = file.read()
+
+    all_tables_info = extract_all_tables(sql_content)
+
+    print_tables(all_tables_info)
+    
+    '''print("JSON STYLE DATA\n\n")
+
+    print(all_tables_info)
+
+    print("Data in SQL format\n\n")
+    for table_info in all_tables_info:
+        print("\nNome da Tabela:", table_info["table_name"])
+        print("Campos:")
+        for column in table_info["columns"]:
+            print(f"- {column['name']}: {column['type']} {column['constraints']}")
+        print("Chave Primária:", table_info["primary_key"])'''
