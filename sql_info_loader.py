@@ -24,9 +24,7 @@ def parse_keys(column_lines):
     return keys
 
 # Multiple tables get put on to only one json file, fix it
-def parse_sql_file(file_path: str) -> list:
-    with open(file_path, "r") as file:
-        sql_content = file.read()
+def parse_sql_file(sql_content: str) -> list:
 
     tables = re.findall(r'CREATE TABLE\s+(\w+)\s+\((.*?)\);', sql_content, re.DOTALL)
 
@@ -60,25 +58,28 @@ def parse_sql_file(file_path: str) -> list:
 
 def remove_key(table_data: list) -> list:
     for table in table_data:
-        print(table)
+        #print(table)
         columns = table["columns"]
         table["columns"] = [col for col in columns if col["type"].upper() != "KEY"]
     return table_data
 
-def set_keys(table_data: list):
-    pass
-
 def load_sql_json(file_path: str, tables: list = []) -> list:
-    table_data = parse_sql_file(file_path)
+    with open(file_path, "r") as file:
+        sql_content = file.read()
+    table_data = parse_sql_file(sql_content)
+    
+    # Find what are the keys for each table, what type they are and what they reference
 
     table_data = remove_key(table_data)
+    
+    # Add key information into the json file
 
     for table in table_data:
         tables.append(table)
     return tables
 
 def main():
-    print(load_sql_json("tabela.sql"))
+    load_sql_json("tabela.sql")
 
 if __name__ == "__main__":
     main()
