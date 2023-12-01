@@ -18,6 +18,16 @@ class DataBase:
         self.db_id = id
         self.db_name = name
 
+    def __init__(self, user, password, host, database):
+        self.connection = mysql.connector.connect(
+            user=user,
+            password=password,
+            host=host,
+            database=database,
+            raise_on_warnings=True
+        )
+        self.cursor = self.connection.cursor()
+
     def create_table(self, id: int, query: str):
         #Cria um json com esse nome
         self.new_table_name = self.find_next_word(query, "CREATE TABLE")
