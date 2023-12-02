@@ -48,6 +48,7 @@ class DataBase:
                 self.tables_list[i].select_data(query)
                 break
 
+
     def update(query: str):
         pass
 

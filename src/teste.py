@@ -20,7 +20,7 @@ def encontra_e_mostra_proxima_palavra(script, termo):
     return False
 
 # Chamando a função para procurar "NOT NULL" e mostrar a próxima palavra
-encontrado = encontra_e_mostra_proxima_palavra(sql_script, "(")
+encontrado = encontra_e_mostra_proxima_palavra(sql_script, "NOT")
 
 if not encontrado:
     print("Termo não encontrado no script.")
