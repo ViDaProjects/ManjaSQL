@@ -15,14 +15,16 @@ class Table:
         self.current_field_id = 0
         self.current_data_id = 0
 
-    def create_field(self, id: int, name: str, type: str, constraints: str, query: str):
-        
+    def create_field(self, name: str, type: str):
+        id = "field_" + str(self.current_field_id) + "_" + self.table_id
         #receive some data and divide it on each variable
-
-        new_field = Field(id, name, type, constraints)
-        self.fields.append(new_field)
+        new_field = Field(id, name, type)
+        self.fields_list.append(new_field)
         #define primary and foreign keys here
-        pass
+        return new_field
+    
+    def import_fields_from_csv(self, fields: List[Field]):
+        self.fields_list = fields
         
     def define_foreign_key(self, name: str, data: str):
         #receive some data and divide it on each variable
@@ -38,9 +40,9 @@ class Table:
     def define_primary_key(self, name: str):
         self.primary_key.append(name)
 
-    def insert_data(self, query: str):
+    def insert_data(self, data: List):
         #Colocar os dados da query em um vetor 
-        data = []
+        #data = []
         new_data = Data(data)
         self.data.append(new_data)
 

@@ -1,7 +1,7 @@
+from typing import List
+
 class Data:
 
-    fields_data = []
-    
     def __init__(self, data) -> None:
-        self.fields_data = data
+        self.fields_data: List[str] = data
 

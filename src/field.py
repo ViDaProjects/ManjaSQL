@@ -1,10 +1,10 @@
 class Field:
 
-    def __init__(self, id: str, name: str, type: str, constraints: str) -> None:
+    def __init__(self, id: str, name: str, type: str)-> None:
         self.field_id = id
         self.field_name = name
         self.type = type
-        self.constraints = constraints
+        self.constraints = ""
         self.value = ""
         self.is_foreign_key = 0
         self.origin_field_name = ""

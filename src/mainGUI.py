@@ -262,20 +262,23 @@ def connect_database():
 	pass
 
 def import_csv_function():
+    #se deu tudo certo
     current_database.import_database(table_name_entry.get(), file_path)
+    close_import_csv_window()
+    create_current_database_window()
 
 def search_csv_file():
     global file_path
-    if file_path == None:
-        file_path = filedialog.askopenfilename(title="Selecionar arquivo CSV", filetypes=[("Arquivos CSV", "*.csv")])
-        if file_path:
-            print(f"Arquivo CSV selecionado: {file_path}")
-            csv_frame = tk.Frame(csv_data_frame, pady=10)
-            csv_frame.pack()
-            csv_label = tk.Label(csv_frame, text="Caminho do arquivo: " + file_path)
-            csv_label.pack()
-            import_csv_button = tk.Button(csv_data_frame, text="Importar", borderwidth=5, padx=15, pady=15, command= import_csv_function)
-            import_csv_button.pack(pady=10)
+    #if file_path == None:
+    file_path = filedialog.askopenfilename(title="Selecionar arquivo CSV", filetypes=[("Arquivos CSV", "*.csv")])
+    if file_path:
+        print(f"Arquivo CSV selecionado: {file_path}")
+        csv_frame = tk.Frame(csv_data_frame, pady=10)
+        csv_frame.pack()
+        csv_label = tk.Label(csv_frame, text="Caminho do arquivo: " + file_path)
+        csv_label.pack()
+        import_csv_button = tk.Button(csv_data_frame, text="Importar", borderwidth=5, padx=15, pady=15, command= import_csv_function)
+        import_csv_button.pack(pady=10)
 
 def import_from_csv():
     global import_csv_window, csv_data_frame, table_name_entry
