@@ -137,6 +137,9 @@ def load_sql_json(file_path: str, tables: list = []) -> list:
     with open(file_path, "r") as file:
         sql_content = file.read()
 
+    sql_content = re.sub(r'[ \t]+', ' ', sql_content)
+    #print(sql_content)
+
     # Precisa transformar vários ' ' em um só
 
     table_data = parse_sql_file(sql_content)
