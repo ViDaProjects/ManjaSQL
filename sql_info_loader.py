@@ -1,8 +1,7 @@
 import re
 import json
 
-'''Colocar enum como parte do type
-Colocar tipo de key no mesmo nível de "importância" que o column'''
+# A única função que importa aqui é load_sql_json
 
 def parse_keys(column_lines):
     key_words = {
@@ -57,7 +56,6 @@ def parse_sql_file(sql_content: str) -> list:
         })
 
     return all_tables_info
-
 
 def remove_key(table_data: list) -> list:
     for table in table_data:
@@ -139,17 +137,9 @@ def merge_data(table_text = "", key_text = ""): # Check if key_text is not empty
     
     for table_json in table_text:
         for key_name, key_value in key_json.items():
-            #print(f"Key: {key_name}")
-            #print(key_value)
         
             if key_name == table_json["table_name"]:
                 table_json['key_data'] = key_value
-
-            # Perform operations using 'value'
-            # For example:
-            # If 'value' is a list of dictionaries, you can loop through it
-            #for item in value:
-            #    print(item)
     return table_text
 
     #first_key = next(iter(key_json.keys()))
