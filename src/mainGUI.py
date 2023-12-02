@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog
 from manjaSQL import ManjaSQL
 
 main_window = tk.Tk()
@@ -87,24 +88,22 @@ def close_select_database_window():
     select_database_window.destroy()
 
 def close_current_database_window():
-    global current_database_window
     current_database_window.destroy()
 
 def close_login_database_window():
     global login_database_window
     login_database_window.destroy()
     
+def close_execute_query_window():
+    execute_query_window.destroy() 
+
+def close_import_csv_window():
+    import_csv_window.destroy() 
+
 def create_database():  
     create_database_window_config()
 
-def execute_query():
-    global select_database_window
-    close_current_database_window()
-    print(query_text.get(1.0, tk.END))
-    table = current_database.create_table(query_text.get(1.0, tk.END))
-    print(table.table_name)
-    print("criou?")
-    create_current_database_window()
+
     
 def select_database():  
     global select_database_window, existent_database_button, query_text
@@ -187,26 +186,26 @@ def login_database(i: int):
 
 #Fazer função com os dados para criar essa janela
 def create_query_window():
-    global query_text
+    global query_text, execute_query_window
     close_current_database_window()
-    current_database_window = tk.Toplevel()
-    current_database_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
-    current_database_window.geometry("800x500")
+    execute_query_window = tk.Toplevel()
+    execute_query_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
+    execute_query_window.geometry("800x500")
     #select_database_window.iconbitmap('src/icons/database.ico')
-    current_database_window.resizable(False, False)
-    current_database_window.focus_force()
-    current_database_window.grab_set()
-    current_database_window.transient(main_window)
+    execute_query_window.resizable(False, False)
+    execute_query_window.focus_force()
+    execute_query_window.grab_set()
+    execute_query_window.transient(main_window)
     #ISso faz o que?
-    current_database_window.protocol("WM_DELETE_WINDOW", lambda: close_current_database_window())
+    execute_query_window.protocol("WM_DELETE_WINDOW", lambda: close_execute_query_window())
 
-    current_db_frame = tk.Frame(current_database_window, pady=20)
-    current_db_frame.pack()
+    query_db_frame = tk.Frame(execute_query_window, pady=20)
+    query_db_frame.pack()
 
      #Text para colocar a query sql
-    query_text = tk.Text(current_db_frame, width=60, height=20)
+    query_text = tk.Text(query_db_frame, width=60, height=20)
     query_text.pack(pady=20)
-    execute_query_button = tk.Button(current_db_frame, text="Executar query", borderwidth=5, padx=15, pady=15, command= execute_query)
+    execute_query_button = tk.Button(query_db_frame, text="Executar query", borderwidth=5, padx=15, pady=15, command= execute_query_function)
     execute_query_button.pack(pady=10)
 
 def create_current_database_window():
@@ -229,6 +228,11 @@ def create_current_database_window():
     create_query = tk.Button(current_db_frame, text="Escrever query", borderwidth=5, padx=15, pady=15, command = create_query_window)
     create_query.pack(pady=10)
 
+    #Import data from CSV
+    #nova janela para informar/criar o database e informar o caminho do arquivo etc
+    import_from_csv_button = tk.Button(current_db_frame, text="Importar dados de um arquivo CSV", borderwidth=5, padx=15, pady=15, command=import_from_csv)
+    import_from_csv_button.pack(pady=10)
+
     if current_database.tables_list == []:
         db_tables_list = tk.Label(current_db_frame, text="Ainda não possui tabelas")
         db_tables_list.pack()
@@ -240,7 +244,15 @@ def create_current_database_window():
             table_list = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, state = tk.DISABLED)
             table_list.pack(pady=10)
 
-
+def execute_query_function():
+    global query_text
+    current_database.execute_query(query_text.get(1.0, tk.END))
+    print(query_text.get(1.0, tk.END))
+    table = current_database.create_table(query_text.get(1.0, tk.END))
+    print(table.table_name)
+    print("criou?")
+    close_execute_query_window()
+    create_current_database_window()
 
 def show_query_results():
     pass
@@ -249,14 +261,50 @@ def show_query_results():
 def connect_database():    
 	pass
 
-def import_from_csv() -> None: 
-    # Lógica para importar dados de um arquivo CSV
-    file_path = "" #filedialog.askopenfilename(title="Selecionar arquivo CSV", filetypes=[("Arquivos CSV", "*.csv")])
-    if file_path:
-        print(f"Arquivo CSV selecionado: {file_path}")
-        # Adicione aqui a lógica para importar os dados do arquivo CSV
+def import_csv_function():
+    current_database.import_database(table_name_entry.get(), file_path)
 
+def search_csv_file():
+    global file_path
+    if file_path == None:
+        file_path = filedialog.askopenfilename(title="Selecionar arquivo CSV", filetypes=[("Arquivos CSV", "*.csv")])
+        if file_path:
+            print(f"Arquivo CSV selecionado: {file_path}")
+            csv_frame = tk.Frame(csv_data_frame, pady=10)
+            csv_frame.pack()
+            csv_label = tk.Label(csv_frame, text="Caminho do arquivo: " + file_path)
+            csv_label.pack()
+            import_csv_button = tk.Button(csv_data_frame, text="Importar", borderwidth=5, padx=15, pady=15, command= import_csv_function)
+            import_csv_button.pack(pady=10)
 
+def import_from_csv():
+    global import_csv_window, csv_data_frame, table_name_entry
+    close_current_database_window()
+    import_csv_window = tk.Toplevel()
+    import_csv_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
+    import_csv_window.geometry("800x500")
+    #select_database_window.iconbitmap('src/icons/database.ico')
+    import_csv_window.resizable(False, False)
+    import_csv_window.focus_force()
+    import_csv_window.grab_set()
+    import_csv_window.transient(main_window)
+    #ISso faz o que?
+    import_csv_window.protocol("WM_DELETE_WINDOW", lambda: close_import_csv_window())
+
+    csv_data_frame = tk.Frame(import_csv_window, pady=20)
+    csv_data_frame.pack()
+
+    table_name_frame = tk.Frame(csv_data_frame, pady=10)
+    table_name_frame.pack()
+    table_name_label = tk.Label(table_name_frame, text="Nome da tabela: ")
+    table_name_label.pack()
+    table_name_entry = tk.Entry(table_name_frame)
+    table_name_entry.pack()
+
+    find_csv_button = tk.Button(csv_data_frame, text="Buscar arquivo", borderwidth=5, padx=15, pady=15, command= search_csv_file)
+    find_csv_button.pack(pady=10)
+
+    
 
     
 #choose database
@@ -278,10 +326,6 @@ choose_database_button.pack(pady=10)
 connect_to_database_button = tk.Button(main_window, text="Conectar a um banco de dados", borderwidth=5, padx=15, pady=15, command=connect_database)
 connect_to_database_button.pack(pady=10)
 
-#Import data from CSV
-#nova janela para informar/criar o database e informar o caminho do arquivo etc
-import_from_csv_button = tk.Button(main_window, text="Importar dados de um arquivo CSV", borderwidth=5, padx=15, pady=15, command=import_from_csv)
-import_from_csv_button.pack(pady=10)
 
 #-------------------------------------------------------
 
