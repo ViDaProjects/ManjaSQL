@@ -43,6 +43,8 @@ def parse_sql_file(sql_content: str) -> list:
                 col_name = col_parts[0]
                 col_type = col_parts[1]
                 col_constraints = ' '.join(col_parts[2:])
+                if col_constraints == "":
+                    col_constraints = "None"
                 columns_info.append({
                     "name": col_name,
                     "type": col_type,
@@ -112,11 +114,12 @@ def create_json_from_keys(keys_list):
             field_name = references_info.split('KEY (')[1].strip()[:-1] if 'KEY (' in references_info else None
             
             references_parts = references_info.split(' ')
-            references = references_parts[-1] if 'REFERENCES' in references_parts else None
+            references = delete_info.split()[0]
+            #references = delete_parts[0] if 'REFERENCES' in references_parts else None
             
             delete_parts = delete_info.split(' ')
             delete_instructions = delete_parts[3] if 'DELETE' in delete_parts else None
-        
+            
         #else:
             #field_name = key_details.split('(')[1].strip()[:-1] if '(' in key_details else None
         
@@ -131,7 +134,26 @@ def create_json_from_keys(keys_list):
 
     return json.dumps(data, indent=2)
 
+def merge_data(table_text = "", key_text = ""): # Check if key_text is not empty so it doesn't break
+    key_json = json.loads(key_text)
+    
+    for table_json in table_text:
+        for key_name, key_value in key_json.items():
+            #print(f"Key: {key_name}")
+            #print(key_value)
+        
+            if key_name == table_json["table_name"]:
+                table_json['key_data'] = key_value
 
+            # Perform operations using 'value'
+            # For example:
+            # If 'value' is a list of dictionaries, you can loop through it
+            #for item in value:
+            #    print(item)
+    return table_text
+
+    #first_key = next(iter(key_json.keys()))
+    #print(key_json[first_key])
 
 def load_sql_json(file_path: str, tables: list = []) -> list:
     with open(file_path, "r") as file:
@@ -151,14 +173,15 @@ def load_sql_json(file_path: str, tables: list = []) -> list:
     table_data = remove_key(table_data)
     
     # Add key information into the json file
-    keys_json = create_json_from_keys(key_info)
+    keys_json = create_json_from_keys(key_info) # References: is broken
+    
+    table_data =  merge_data(table_data, keys_json)
 
-    #table_data =  merge_data(table_data, keys_json)
     print(table_data)
 
-    for table in table_data:
-        tables.append(table)
-    return tables
+    #for table in table_data:
+    #    tables.append(table)
+    #return tables
 
 def main():
     load_sql_json("tabela.sql")
