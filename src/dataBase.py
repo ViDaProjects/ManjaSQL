@@ -1,39 +1,29 @@
 from table import Table
+from typing import List
 
 #atributo privado: __nome__
 class DataBase:
 
-    db_id = int
-    db_name = str    
-    new_table_name = str
-    fields_list = [str] #class fields
-    tables_list = [Table] #class table
-    tables_name_list = [str]
-
-    def __init__(self, id: int, name: str) -> None:
-        self.fields_list = []
-        self.tables_list = []
-        self.tables_name_list = []
+    def __init__(self, id: int, name: str, host: str, user: str, password: str) -> None:
+        self.fields_list = [] #talvez class fields
+        self.tables_list = [] #class Table
+        self.tables_name_list = [] #str
         self.new_table_name = ""
         self.db_id = id
         self.db_name = name
+        self.user = user
+        self.password = password
+        self.host = host
+        self.current_table_id = 0
 
-    def __init__(self, user, password, host, database):
-        self.connection = mysql.connector.connect(
-            user=user,
-            password=password,
-            host=host,
-            database=database,
-            raise_on_warnings=True
-        )
-        self.cursor = self.connection.cursor()
-
-    def create_table(self, id: int, query: str):
+    def create_table(self, query: str):
         #Cria um json com esse nome
-        self.new_table_name = self.find_next_word(query, "CREATE TABLE")
+        id = "table_" + str(self.current_table_id) + "_db_" + str(self.db_id)
+        self.new_table_name = self.find_next_word(query, "TABLE")
+        print("new table name - db - " + self.new_table_name)
         new_table = Table(id, self.new_table_name)
-        self.table_name_list.append(self.new_table_name)
-        self.table_list.append(new_table)
+        self.tables_name_list.append(self.new_table_name)
+        self.tables_list.append(new_table)
         return new_table
 
     def drop_table():
@@ -70,12 +60,23 @@ class DataBase:
     def save_data():
         pass
 
-    def find_next_word(self, query:str, searched_word: str):
+    def login(self, user: str, password: str):
+        return (self.user == user and self.password == password)
+       
+
+    #TA FUNCIONANDO SO COM UMA PALAVRA
+    def find_next_word(self, query:str, searched_word: str) -> str:  # Update the function signature to specify the return type
         query_words = query.split()
-        
+        print(query_words)
         for i, word in enumerate(query_words):
             if searched_word.upper() == word:
-                next_word = query_words[i + 1] if i + 1 < len(query_words) else None
+                next_word = query_words[i + 1] if i + 1 < len(query_words) else ""
                 print(f"Encontrou '{searched_word}' na palavra '{word}'. Próxima palavra: {next_word}")
                 return next_word
-        return  
+        return ""  # Ensure the function always returns a value of type "str"
+    
+# if __name__ == "__main__":
+#     db = DataBase(1, "teste", "user", "password", "localhost")
+#     db.create_table(1, "CREATE TABLE IF NOT EXISTS table_name (id INTEGER PRIMARY KEY, name TEXT)")
+#     db.create_table(2, "CREATE TABLE IF NOT EXISTS table_name (id INTEGER PRIMARY KEY, name TEXT)")
+#     db.create_table(3, "CREATE

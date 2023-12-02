@@ -1,24 +1,19 @@
 from field import Field
 from data import Data
+from typing import List
 
 class Table:
 
-    table_id = int
-    table_name = str
-    fields_list = [Field]
-    fields_name_list = str
-    data = [Data]
-    primary_key = [str]
-    foreign_key = [str]
-
-    def __init__(self, table_id: int, table_name = str) -> None:
+    def __init__(self, table_id: str, table_name: str) -> None:
         self.table_id = table_id
         self.table_name = table_name
-        self.fields_list = []
+        self.fields_list: List[Field] = [] 
         self.fields_name_list = []
-        self.data = []
+        self.data: List[Data] = [] 
         self.primary_key = []
         self.foreign_key = []
+        self.current_field_id = 0
+        self.current_data_id = 0
 
     def create_field(self, id: int, name: str, type: str, constraints: str, query: str):
         
