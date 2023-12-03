@@ -239,16 +239,15 @@ def create_query_window():
     execute_query_button = tk.Button(query_db_frame, text="Executar query", borderwidth=5, padx=15, pady=15, command= execute_query_function)
     execute_query_button.pack(pady=10)
 
+#Result of "Select * from table"
+#k - button id
 def show_all_saved_data(k: int):
     global query_columns, result_table
-    #precisa ser um id de cada button
     current_table = current_database.tables_list[k]
     current_database_window.destroy()
-    #mostrar dados salvos nessa tabela (classe data + columns names)
     query_columns = list(field.field_name for field in current_table.fields_list)
     print(query_columns)
     
-    #PORQUE ESTE CARALHO ESTÁ FICANDO VAZIO???????????
     print("show all data")
     print(list(data for data in current_table.data_list))
     columns_length = len(query_columns)
@@ -261,6 +260,7 @@ def show_all_saved_data(k: int):
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
+            #ERRO AO MOSTRAR DADOS IMPORTADOS DE CSV
             result_table[i, j] = current_table.data_list[i][j]
     
     create_query_results_window()
@@ -277,7 +277,6 @@ def create_current_database_window():
     current_database_window.focus_force()
     current_database_window.grab_set()
     current_database_window.transient(main_window)
-    #ISso faz o que?
     current_database_window.protocol("WM_DELETE_WINDOW", lambda: close_current_database_window())
 
     current_db_frame = tk.Frame(current_database_window, pady=20)
@@ -303,7 +302,11 @@ def create_current_database_window():
             print(table.table_name)
             table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: show_all_saved_data(k))
             table_list_button.pack(pady=10, side= tk.LEFT)
+        #ERRO AO CLICAR NA TABELA IMPORTADA POR CSV
 
+
+#APENAS TESTE DO "select livro_id, titulo from livros"
+#Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
     query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
@@ -373,6 +376,7 @@ def connect_database():
 def import_csv_function():
     #se deu tudo certo
     current_database.import_database(table_name_entry.get(), file_path)
+    #Atualizar result_table talvez ---- erro no current database window
     close_import_csv_window()
     create_current_database_window()
 

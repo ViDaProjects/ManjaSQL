@@ -19,7 +19,6 @@ class ManjaSQL:
         #Cria um diretorio com esse nome
         self.new_database_name = name
         new_database = DataBase(self.iterate_new_id(), name, host, user, password)
-        self.database_name_list.append(self.new_database_name)
         self.database_list.append(new_database)
         return new_database
 

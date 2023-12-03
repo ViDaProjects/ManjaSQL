@@ -37,7 +37,6 @@ class DataBase:
         query_csv = "CREATE TABLE " + table_name 
         current_table = self.create_table(query_csv)
 
-        #LOGICA PARA IMPORTAR CSV PARA TABELA ESPECIFICA
         # Leitura do arquivo CSV usando pandas
         print(csv_path)
         dataframe = pd.read_csv(csv_path)
@@ -52,20 +51,11 @@ class DataBase:
         # Criando a instância da classe 
         for data in dataframe.to_dict('records'):
             current_table.insert_data(data)
-            print(data)
-            print()
-        #dados = Data(table=tabela, data=dataframe.to_dict('records'))
-
-        print()
-        #for i in enumerate(current_table.data):
-        #    print(current_table.data[i])
-        #    print()
-        #return dados_tabela
 
         print("apenas printando cada data")
-        for data in current_table.data:
-            print(data.fields_data['livro_id'])
-            print(data.fields_data['titulo'])
+        for data in current_table.data_list:
+            print(data['livro_id'])
+            print(data['titulo'])
             print()
     
     #Só funciona com uma palavra
@@ -115,7 +105,6 @@ class DataBase:
         pass
 
     def connect_to_database(self):
-        print("TENTAR CONEXÃOOO")
         try:
             self.connection = mysql.connector.connect(
                 user=self.user,
@@ -128,25 +117,19 @@ class DataBase:
             return ("Conectado com sucesso!")
 
         except mysql.connector.Error as e:
-            # Se ocorrer um erro, imprima a mensagem de erro
             return ("Erro de MySQL: " + str(e))
         except Exception as e:
-            # Se ocorrer outro tipo de erro, imprima a mensagem de erro
             return ("Erro: " + str(e))    
 
     def get_table_names_from_connection(self):
         self.cursor.execute("SHOW TABLES")
         table_names = [table[0].decode('utf-8') for table in self.cursor.fetchall()]
-        print("table_names - get table")
-        print(table_names)
-        #self.cursor.fetchall()  # Consumir os resultados antes de continuar
         return table_names
 
     def get_table_fields_from_connection(self, table: Table):
         self.cursor.execute(f"DESCRIBE "+ table.table_name)
         #get name and data type from field
         fields = [table.create_field(field[0], field[1]) for field in self.cursor.fetchall()]
-        #self.cursor.fetchall()  # Consumir os resultados antes de continuar
 
     def create_table_instances_from_connection(self):
         table_names = self.get_table_names_from_connection()
