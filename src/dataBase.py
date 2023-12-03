@@ -4,6 +4,7 @@ import csv
 import pandas as pd
 import mysql.connector
 from mysql.connector import Error
+import re
 
 
 #atributo privado: __nome__
@@ -76,27 +77,28 @@ class DataBase:
     #Só funciona com uma palavra
     def execute_query(self, query: str):
         #passa por toda a query
-        command = query.upper().split()
+        upper_query = query.upper()
+        command = upper_query.split()
 
-        if command == "CREATE TABLE":
+        if command[0] == "CREATE TABLE":
             #Se create table: cria tabela
-            self.create_table(query)
+            self.create_table(upper_query)
 
-        if command == "INSERT INTO":
+        if command[0] == "INSERT INTO":
             #Se insert into:
-            self.insert(query)
+            self.insert(upper_query)
 
-        if command == "UPDATE":
+        if command[0] == "UPDATE":
             #se update
-            self.update(query)
+            self.update(upper_query)
 
-        if command == "DELETE":
+        if command[0] == "DELETE":
             #se delete
-            self.delete(query)
+            self.delete(upper_query)
 
-        if command == "SELECT":
+        if command[0] == "SELECT":
            #se select
-            self.select(query)
+            self.select(upper_query)
         
     def execute_query_on_connection(self, query: str):
         self.cursor.execute(query)
@@ -174,9 +176,72 @@ class DataBase:
                 self.tables_list[i].select_data(query)
                 break
 
+    def condition_check(self, comparison: list, main_comparator: str, table: Table):
+        field_name = []
+        value = []
+        for i in len(comparison):
+            field_name.append(comparison.split('=')[0].strip())
+            value.append(comparison.split('=')[1].strip())
+        
+        for field in table.fields_list:
+            if field == field:
+                pass
 
     def update(self, query: str):
-        pass
+        
+        # Sets the split query to be readable
+        split_query = query.split()
+        
+        pattern = r'(\s*=\s*)'
+        result = []
+        for text in split_query:
+            split_text = re.split(pattern, text)
+            result.extend(filter(None, split_text))
+        split_query = result
+        
+        # Table name to be checked later
+        table_name = split_query[split_query.index("UPDATE") + 1]
+        
+        # Extracts what are the fields and the values that will be attributed to them
+        where_index = len(split_query)
+        if "WHERE" in split_query:
+            where_index = split_query.index("WHERE")
+        set_index = split_query.index("SET")
+
+        field_name = []
+        new_values = []
+        i = 1
+        while where_index - i > set_index:
+            field_name.append(split_query[where_index - i - 2])
+            new_values.append(split_query[where_index - i])
+            i += 3
+
+        conditions = []
+        
+        if where_index != len(split_query):
+            i = 1
+            while where_index + i < len(split_query):
+
+                if where_index + i <= len(split_query):
+                    condition = ''.join(split_query[where_index + i:where_index + i + 3])
+                    
+                    conditions.append(condition)
+                i += 4
+        
+        condition_joiner = ""
+        if len(conditions) >= 2:
+            condition_joiner = split_query[where_index + 4]
+        
+        
+        # Update the tables
+        for table in self.tables_list:
+            print(i.table_name)
+            if table.table_name == table_name:
+                for field in table.fields_list:
+                    for k in range(len(field_name)):
+                        if field.field_name == field_name[k]:
+                            if self.condition_check(conditions, condition_joiner, table):
+                                field.value = new_values[k]
 
     def delete(self, query: str):
         pass
@@ -202,8 +267,6 @@ class DataBase:
                 return next_word
         return ""  # Ensure the function always returns a value of type "str"
     
-# if __name__ == "__main__":
-#     db = DataBase(1, "teste", "user", "password", "localhost")
-#     db.create_table(1, "CREATE TABLE IF NOT EXISTS table_name (id INTEGER PRIMARY KEY, name TEXT)")
-#     db.create_table(2, "CREATE TABLE IF NOT EXISTS table_name (id INTEGER PRIMARY KEY, name TEXT)")
-#     db.create_table(3, "CREATE
+if __name__ == "__main__":
+    db = DataBase(1, "teste", "user", "password", "localhost")
+    db.execute_query("update customers set ContactName = 'Alfred', city= 'Frankfurt' where customerID = 1 and bila = bilo")

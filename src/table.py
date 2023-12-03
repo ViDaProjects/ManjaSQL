@@ -134,7 +134,10 @@ class Table:
             '-': lambda x, y: x - y,
             '>': lambda x, y: x > y,
             '<': lambda x, y: x < y,
-            '=': lambda x, y: x == y
+            '=': lambda x, y: x == y,
+            'AND': lambda x, y: x and y,
+            'OR': lambda x, y: x or y
         }
 
-        return operators.get(string_operator, None)                
+        return operators.get(string_operator, None)
+    
