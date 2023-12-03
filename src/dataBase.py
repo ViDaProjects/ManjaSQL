@@ -37,27 +37,22 @@ class DataBase:
         query_csv = "CREATE TABLE " + table_name 
         current_table = self.create_table(query_csv)
 
-        # Leitura do arquivo CSV usando pandas
+        #Read csv file
         print(csv_path)
         dataframe = pd.read_csv(csv_path)
 
-        # Obtendo os nomes e tipos de dados das colunas
+        #get name and data type from columns
         columns = dataframe.columns
         fields = [current_table.create_field(name, str(dataframe[name].dtype)) for name in columns]
 
-        # Criando a instância da classe Table
+        #create current table fields
         current_table.import_fields_from_csv(fields)
 
-        # Criando a instância da classe 
+        #Populate current table
         for data in dataframe.to_dict('records'):
             current_table.insert_data(data)
 
-        print("apenas printando cada data")
-        for data in current_table.data_list:
-            print(data['livro_id'])
-            print(data['titulo'])
-            print()
-    
+ 
     #Só funciona com uma palavra
     def execute_query(self, query: str):
         #passa por toda a query
@@ -98,6 +93,7 @@ class DataBase:
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
+    #EXCLUSIVAMENTE PRA TESTE NA QUERY DE CONEXÃO, APAGAR DEPOIS
     def get_query_columns(self):
         return (['livro_id','titulo'])
     
@@ -145,7 +141,6 @@ class DataBase:
             print(table.data_list)
 
     def get_data_from_connected_database(self):
-        print("ENTROU NO DATABASEEEEE")
         message = self.connect_to_database()
         if message == "Conectado com sucesso!":
             self.create_table_instances_from_connection()
@@ -160,9 +155,6 @@ class DataBase:
             print(data)
             print()
             table.insert_data(data)
-
-    def read_query(query: str):
-        pass
 
     def select(self, query: str):
         table_name = self.find_next_word(query, "FROM")
