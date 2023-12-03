@@ -1,7 +1,7 @@
 import re
 import json
 
-# A única função que importa aqui é load_sql_json
+# the only important method is load_sql_json
 
 def parse_keys(column_lines):
     key_words = {
