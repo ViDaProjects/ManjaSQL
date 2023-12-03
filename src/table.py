@@ -1,5 +1,4 @@
 from field import Field
-from data import Data
 from typing import List
 
 class Table:
@@ -8,17 +7,15 @@ class Table:
         self.table_id = table_id
         self.table_name = table_name
         self.fields_list: List[Field] = [] 
-        self.fields_name_list = []
-        self.data: List[Data] = [] 
-        self.primary_key = []
-        self.foreign_key = []
+        self.data_list = [] 
+        self.primary_key: List[Field] = [] 
+        self.foreign_key : List[Field] = [] 
         self.current_field_id = 0
-        self.current_data_id = 0
 
     def create_field(self, name: str, type: str):
         id = "field_" + str(self.current_field_id) + "_" + self.table_id
-        #receive some data and divide it on each variable
         new_field = Field(id, name, type)
+        self.current_field_id += 1
         self.fields_list.append(new_field)
         #define primary and foreign keys here
         return new_field
@@ -26,26 +23,27 @@ class Table:
     def import_fields_from_csv(self, fields: List[Field]):
         self.fields_list = fields
         
-    def define_foreign_key(self, name: str, data: str):
-        #receive some data and divide it on each variable
-        self.foreign_key.append(name)
-        
-        for field in self.fields:
-            if field.field_name == name:
-                field.is_foreign_key = 1
-                field.origin_field_name = ""
-                field.origin_table_name = ""
-                field.foreign_key_constraints = ""
+    
+    #Define attributes if field is foreignkey
+    #Parameters:
+    #foreign_data = [field_name, origin_table_name, origin_field_name, constraints]
+    def define_foreign_key(self, foreign_data: str):
+        field_object = (field for i, field in enumerate(self.fields_list) if self.fields_list[i].field_name == foreign_data[0])
+        self.foreign_key.append(field_object)
+
+        field_object.is_foreign_key = True
+        field_object.origin_field_name = foreign_data[1]
+        field_object.origin_table_name = foreign_data[2]
+        field_object.foreign_key_constraints = foreign_data[3]
 
     def define_primary_key(self, name: str):
-        self.primary_key.append(name)
+        field_object = (field for i, field in enumerate(self.fields_list) if self.fields_list[i].field_name == name)
+        self.primary_key.append(field_object)
 
     def insert_data(self, data: List):
-        #Colocar os dados da query em um vetor 
-        #data = []
-        new_data = Data(data)
-        self.data.append(new_data)
+        self.data_list.append(data)
 
+ 
     def update_data(self, query: str, where: str):
         #descobre proxima palavra depois do where
         update_positions = []
@@ -138,3 +136,15 @@ class Table:
         }
 
         return operators.get(string_operator, None)                
+
+# Exemplo de uso
+#operador_string = ">"
+
+# Mapear a string do operador para uma função
+#operador = mapear_operador(operador_string)
+
+'''if operador:
+    resultado = operador(5, 3)  # Substitua 5 e 3 pelos valores que deseja comparar
+    print(f"O resultado da comparação é: {resultado}")
+else:
+    print("Operador não reconhecido.")'''

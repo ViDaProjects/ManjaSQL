@@ -4,7 +4,6 @@ from manjaSQL import ManjaSQL
 from tkinter import ttk
 import numpy as np
 
-
 main_window = tk.Tk()
 main_window.title("ManjaSQL")
 main_window.geometry("800x500")
@@ -13,7 +12,6 @@ main_window.geometry("800x500")
 
 global manja
 global current_db
-global current_table
 global create_database_window
 
 #Get from save data
@@ -29,7 +27,6 @@ presentation2.pack(pady=5)
 
 def send_create_db():
     global current_db, manja
-    #Deixar apenas para criar e fechar janela, escolhe o db depois
     current_db = manja.create_database(db_name_entry.get(), db_host_entry.get(), db_user_entry.get(),db_password_entry.get())
     create_label = tk.Label(db_data_frame, text="Banco de dados criado!")
     create_label.pack()    
@@ -60,7 +57,6 @@ def create_database_window_config(title: str):
     create_database_window.focus_force()
     create_database_window.grab_set()
     create_database_window.transient(main_window)
-    #ISso faz o que?
     create_database_window.protocol("WM_DELETE_WINDOW", lambda: close_create_database_window())
 
     db_data_frame = tk.Frame(create_database_window, pady=20)
@@ -143,28 +139,24 @@ def select_database():
     select_database_window.focus_force()
     select_database_window.grab_set()
     select_database_window.transient(main_window)
-    #ISso faz o que?
     select_database_window.protocol("WM_DELETE_WINDOW", lambda: close_select_database_window())
 
     db_select_frame = tk.Frame(select_database_window, pady=20)
     db_select_frame.pack()
     #fazer um for para criar um novo botão a cada database cadastrado
-    for i, database in enumerate(manja.database_list):
-        print(database.db_name)
-        existent_database_button = tk.Button(db_select_frame, text=database.db_name, borderwidth=5, padx=15, pady=15, command= lambda: login_database(i))
-        existent_database_button.pack(pady=10)
 
-
-
-def create_table():
-    
-    pass
-
-def select_table():
-    pass
+    if manja.database_list == []:
+        db_information = tk.Label(db_select_frame, text="Ainda não possui Bancos de Dados")
+        db_information.pack()
+    else:    
+        db_information = tk.Label(db_select_frame, text="Bancos de dados existentes: ")
+        db_information.pack()
+        for i, database in enumerate(manja.database_list):
+            print(database.db_name)
+            existent_database_button = tk.Button(db_select_frame, text=database.db_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: login_database(k))
+            existent_database_button.pack(pady=10)
 
 def verify_login():
-    #Login no database, se der certo, abre a página do database, se não, volta a pagina do select
     if current_database.login(db_user_login_entry.get(), db_password_login_entry.get()):
         login_database_window.destroy()
         create_current_database_window()
@@ -186,7 +178,6 @@ def login_database(i: int):
     login_database_window.focus_force()
     login_database_window.grab_set()
     login_database_window.transient(main_window)
-    #ISso faz o que?
     login_database_window.protocol("WM_DELETE_WINDOW", lambda: close_login_database_window())
 
     db_login_frame = tk.Frame(login_database_window, pady=20)
@@ -214,7 +205,6 @@ def login_database(i: int):
     db_cancel_login_button = tk.Button(db_login_frame, text="Cancelar", command= close_login_database_window)
     db_cancel_login_button.pack()
 
-#Fazer função com os dados para criar essa janela
 def create_query_window():
     global query_text, execute_query_window
     close_current_database_window()
@@ -226,17 +216,42 @@ def create_query_window():
     execute_query_window.focus_force()
     execute_query_window.grab_set()
     execute_query_window.transient(main_window)
-    #ISso faz o que?
     execute_query_window.protocol("WM_DELETE_WINDOW", lambda: close_execute_query_window())
 
     query_db_frame = tk.Frame(execute_query_window, pady=20)
     query_db_frame.pack()
 
-     #Text para colocar a query sql
+    #Text para colocar a query sql
     query_text = tk.Text(query_db_frame, width=60, height=20)
     query_text.pack(pady=20)
     execute_query_button = tk.Button(query_db_frame, text="Executar query", borderwidth=5, padx=15, pady=15, command= execute_query_function)
     execute_query_button.pack(pady=10)
+
+#Result of "Select * from table"
+#k - button id
+def show_all_saved_data(k: int):
+    global query_columns, result_table
+    current_table = current_database.tables_list[k]
+    current_database_window.destroy()
+    query_columns = list(field.field_name for field in current_table.fields_list)
+    print(query_columns)
+    
+    print("show all data")
+    print(list(data for data in current_table.data_list))
+    columns_length = len(query_columns)
+    lines_length = len(list(data for data in current_table.data_list))
+    result_table = np.zeros((lines_length, columns_length), dtype=object)
+    print("linhas: " + str(lines_length))
+    print("colunas: " + str(columns_length))
+
+    #Save result on table
+    for i in range(result_table.shape[0]):
+        for j in range(result_table.shape[1]):
+            #ERRO AO MOSTRAR DADOS IMPORTADOS DE CSV
+            result_table[i, j] = current_table.data_list[i][j]
+    
+    create_query_results_window()
+
 
 def create_current_database_window():
     global current_database_window
@@ -249,7 +264,6 @@ def create_current_database_window():
     current_database_window.focus_force()
     current_database_window.grab_set()
     current_database_window.transient(main_window)
-    #ISso faz o que?
     current_database_window.protocol("WM_DELETE_WINDOW", lambda: close_current_database_window())
 
     current_db_frame = tk.Frame(current_database_window, pady=20)
@@ -259,7 +273,6 @@ def create_current_database_window():
     create_query.pack(pady=10)
 
     #Import data from CSV
-    #nova janela para informar/criar o database e informar o caminho do arquivo etc
     import_from_csv_button = tk.Button(current_db_frame, text="Importar dados de um arquivo CSV", borderwidth=5, padx=15, pady=15, command=import_from_csv)
     import_from_csv_button.pack(pady=10)
 
@@ -273,9 +286,13 @@ def create_current_database_window():
         print(current_database.tables_list)
         for i, table in enumerate(current_database.tables_list):
             print(table.table_name)
-            table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, state = tk.DISABLED)
+            table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: show_all_saved_data(k))
             table_list_button.pack(pady=10, side= tk.LEFT)
+        #ERRO AO CLICAR NA TABELA IMPORTADA POR CSV
 
+
+#APENAS TESTE DO "select livro_id, titulo from livros"
+#Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
     query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
@@ -300,15 +317,12 @@ def execute_query_function():
 
     
     print(result_table)
-    
-    #table = current_database.create_table(query_text.get(1.0, tk.END))
-    #print(table.table_name)
-    #print("criou?")
+
     close_execute_query_window()
     create_query_results_window()
 
 def create_query_results_window():
-    global query_results_window
+    global query_results_window, query_columns, result_table
 
     query_results_window = tk.Toplevel()
     query_results_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
@@ -324,9 +338,6 @@ def create_query_results_window():
     query_results_frame.pack(expand=True, fill=tk.BOTH)
     
     tree = ttk.Treeview(query_results_frame, columns=query_columns, show="headings")
-
-    print(query_columns)
-    print(result_table)
 
     #config headings
     for column_str in query_columns:
@@ -346,14 +357,13 @@ def connect_database():
     connect_create_button.pack()	
 
 def import_csv_function():
-    #se deu tudo certo
     current_database.import_database(table_name_entry.get(), file_path)
+    #Atualizar result_table talvez ---- erro no current database window
     close_import_csv_window()
     create_current_database_window()
 
 def search_csv_file():
     global file_path
-    #if file_path == None:
     file_path = filedialog.askopenfilename(title="Selecionar arquivo CSV", filetypes=[("Arquivos CSV", "*.csv")])
     if file_path:
         print(f"Arquivo CSV selecionado: {file_path}")
@@ -375,7 +385,6 @@ def import_from_csv():
     import_csv_window.focus_force()
     import_csv_window.grab_set()
     import_csv_window.transient(main_window)
-    #ISso faz o que?
     import_csv_window.protocol("WM_DELETE_WINDOW", lambda: close_import_csv_window())
 
     csv_data_frame = tk.Frame(import_csv_window, pady=20)
@@ -390,26 +399,17 @@ def import_from_csv():
 
     find_csv_button = tk.Button(csv_data_frame, text="Buscar arquivo", borderwidth=5, padx=15, pady=15, command= search_csv_file)
     find_csv_button.pack(pady=10)
+   
 
-    
-
-    
-#choose database
-#Lista abaixo os database cadastrados
-#quando clica aparece nova janela para fazer login no database
-#depois do login, fecha segunda janela e abre a terceira com os dados do data base
-
-#create new database (pode ser só um campo new, no choose database)
-#Nova janela para preencher os campos: nome, host, user, password, etc
+#create new database 
 new_database_button = tk.Button(main_window, text="Novo banco de dados", borderwidth=5, padx=15, pady=15, command=create_database)
 new_database_button.pack(pady=10)
 
-  
+#Select required database
 choose_database_button = tk.Button(main_window, text= "Escolher um Banco de Dados", borderwidth=5, padx=15, pady=15, command=select_database)
 choose_database_button.pack(pady=10)
 
 #Connect to existent database
-#nova janela para login e coisas necessárias
 connect_to_database_button = tk.Button(main_window, text="Conectar a um banco de dados", borderwidth=5, padx=15, pady=15, command=connect_database)
 connect_to_database_button.pack(pady=10)
 

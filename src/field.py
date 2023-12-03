@@ -5,10 +5,7 @@ class Field:
         self.field_name = name
         self.type = type
         self.constraints = ""
-        self.value = ""
-        self.is_foreign_key = 0
+        self.is_foreign_key = False
         self.origin_field_name = ""
         self.origin_table_name = ""
         self.foreign_key_constraints = ""
-
-#preciso fazer método para pegar o nome?
