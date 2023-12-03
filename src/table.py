@@ -136,3 +136,15 @@ class Table:
         }
 
         return operators.get(string_operator, None)                
+
+# Exemplo de uso
+#operador_string = ">"
+
+# Mapear a string do operador para uma função
+#operador = mapear_operador(operador_string)
+
+'''if operador:
+    resultado = operador(5, 3)  # Substitua 5 e 3 pelos valores que deseja comparar
+    print(f"O resultado da comparação é: {resultado}")
+else:
+    print("Operador não reconhecido.")'''
