@@ -6,7 +6,7 @@ from mysql.connector import Error
 class ManjaSQL:
 
     def __init__(self, last_id: int) -> None:
-        self.database_name_list = []
+        #self.database_name_list = []
         self.database_list: List[DataBase] = [] 
         #lista do tipo database tbm
         self.new_database_name = ""

@@ -4,6 +4,7 @@ from manjaSQL import ManjaSQL
 from tkinter import ttk
 import numpy as np
 
+#MOSTRAR TODOS OS DADOS SALVOS CLICANDO NA TABELA -> NAO MOSTRA O DATA N SEI PQ
 
 main_window = tk.Tk()
 main_window.title("ManjaSQL")
@@ -238,6 +239,33 @@ def create_query_window():
     execute_query_button = tk.Button(query_db_frame, text="Executar query", borderwidth=5, padx=15, pady=15, command= execute_query_function)
     execute_query_button.pack(pady=10)
 
+def show_all_saved_data(k: int):
+    global query_columns, result_table
+    #precisa ser um id de cada button
+    current_table = current_database.tables_list[k]
+    current_database_window.destroy()
+    #mostrar dados salvos nessa tabela (classe data + columns names)
+    query_columns = list(field.field_name for field in current_table.fields_list)
+    print(query_columns)
+    
+    #PORQUE ESTE CARALHO ESTÁ FICANDO VAZIO???????????
+    print("show all data")
+    print(list(data for data in current_table.data_list))
+    columns_length = len(query_columns)
+    lines_length = len(list(data for data in current_table.data_list))
+    #lines_length = 10
+    result_table = np.zeros((lines_length, columns_length), dtype=object)
+    print("linhas: " + str(lines_length))
+    print("colunas: " + str(columns_length))
+
+    #Save result on table
+    for i in range(result_table.shape[0]):
+        for j in range(result_table.shape[1]):
+            result_table[i, j] = current_table.data_list[i][j]
+    
+    create_query_results_window()
+
+
 def create_current_database_window():
     global current_database_window
     
@@ -273,7 +301,7 @@ def create_current_database_window():
         print(current_database.tables_list)
         for i, table in enumerate(current_database.tables_list):
             print(table.table_name)
-            table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, state = tk.DISABLED)
+            table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: show_all_saved_data(k))
             table_list_button.pack(pady=10, side= tk.LEFT)
 
 def execute_query_function():
@@ -308,7 +336,7 @@ def execute_query_function():
     create_query_results_window()
 
 def create_query_results_window():
-    global query_results_window
+    global query_results_window, query_columns, result_table
 
     query_results_window = tk.Toplevel()
     query_results_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
@@ -324,9 +352,6 @@ def create_query_results_window():
     query_results_frame.pack(expand=True, fill=tk.BOTH)
     
     tree = ttk.Treeview(query_results_frame, columns=query_columns, show="headings")
-
-    print(query_columns)
-    print(result_table)
 
     #config headings
     for column_str in query_columns:
