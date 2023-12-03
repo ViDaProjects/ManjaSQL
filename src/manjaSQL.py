@@ -1,5 +1,7 @@
 from dataBase import DataBase
 from typing import List
+import mysql.connector
+from mysql.connector import Error
 
 class ManjaSQL:
 
@@ -20,6 +22,32 @@ class ManjaSQL:
         self.database_name_list.append(self.new_database_name)
         self.database_list.append(new_database)
         return new_database
+
+    def connect_to_database(self, db_name: str, host: str, user: str, password: str):
+        try:
+            self.connection = mysql.connector.connect(
+                user=user,
+                password=password,
+                host=host,
+                database=db_name,
+                raise_on_warnings=True
+            )
+            self.cursor = self.connection.cursor()
+            return "Conectado com sucesso!"
+
+        except mysql.connector.Error as e:
+            # Se ocorrer um erro, imprima a mensagem de erro
+            return ("Erro de MySQL: " + str(e))
+        except Exception as e:
+            # Se ocorrer outro tipo de erro, imprima a mensagem de erro
+            return ("Erro: " + str(e))
+            
+   
+    def send_connection_to_database(self, db: DataBase):
+        #db.cursor = self.connection.cursor()
+        #self.connection.commit()  # Adicione essa linha se necessário
+        self.connection.close()  # Feche a conexão após a execução        
+        return db.get_data_from_connected_database()
 
     def iterate_new_id(self):
         self.id += 1

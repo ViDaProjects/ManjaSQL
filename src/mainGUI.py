@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog
 from manjaSQL import ManjaSQL
+from tkinter import ttk
+import numpy as np
+
 
 main_window = tk.Tk()
 main_window.title("ManjaSQL")
@@ -25,16 +28,32 @@ presentation2.pack(pady=5)
 #functions
 
 def send_create_db():
+    global current_db, manja
     #Deixar apenas para criar e fechar janela, escolhe o db depois
     current_db = manja.create_database(db_name_entry.get(), db_host_entry.get(), db_user_entry.get(),db_password_entry.get())
-    create_database_window.destroy()
-    print(manja.database_list[0].db_name)
-    pass
+    create_label = tk.Label(db_data_frame, text="Banco de dados criado!")
+    create_label.pack()    
+    #create_database_window.destroy()
+    print(db.db_name for db in manja.database_list)
 
-def create_database_window_config(): 
-    global create_database_window, db_name_entry, db_host_entry, db_user_entry, db_password_entry
+def send_connect_db():
+    global current_db
+    message = manja.connect_to_database(db_name_entry.get(), db_host_entry.get(), db_user_entry.get(),db_password_entry.get())
+    if message == "Conectado com sucesso!":
+        send_create_db()
+        message = manja.send_connection_to_database(current_db)
+
+    connect_label = tk.Label(db_data_frame, text=message)
+    connect_label.pack()         
+    #MOSTRA UM ERRO NO TERMINAL SE O BD INFORMADO NÃO EXISTE
+    #conectar ou criar conexão
+    #ou vê se existe a conexão e depois cria o db
+    
+
+def create_database_window_config(title: str): 
+    global create_database_window, db_name_entry, db_host_entry, db_user_entry, db_password_entry, db_data_frame
     create_database_window = tk.Toplevel()
-    create_database_window.title("ManjaSQL - Criar Banco de Dados")
+    create_database_window.title("ManjaSQL - " + title)
     create_database_window.geometry("800x500")
     #create_database_window.iconbitmap('src/icons/database.ico')
     create_database_window.resizable(False, False)
@@ -51,8 +70,9 @@ def create_database_window_config():
     db_name_frame.pack()
     db_name_label = tk.Label(db_name_frame, text="Nome do Banco de Dados: ")
     db_name_label.pack()
-    db_name_entry = tk.Entry(db_name_frame)
+    db_name_entry = tk.Entry(db_name_frame, )
     db_name_entry.pack()
+    db_name_entry.insert(0, "livros-db")
 
     db_host_frame = tk.Frame(db_data_frame, pady=10)
     db_host_frame.pack()
@@ -60,6 +80,7 @@ def create_database_window_config():
     db_host_label.pack()
     db_host_entry = tk.Entry(db_host_frame)
     db_host_entry.pack()
+    db_host_entry.insert(0, "localhost")
 
     db_user_frame = tk.Frame(db_data_frame, pady=10)
     db_user_frame.pack()
@@ -67,6 +88,7 @@ def create_database_window_config():
     db_user_label.pack()
     db_user_entry = tk.Entry(db_user_frame)
     db_user_entry.pack()
+    db_user_entry.insert(0, "user")
 
     db_password_frame = tk.Frame(db_data_frame, pady=10)
     db_password_frame.pack()
@@ -74,10 +96,8 @@ def create_database_window_config():
     dp_password_label.pack()
     db_password_entry = tk.Entry(db_password_frame)
     db_password_entry.pack()
-
-    db_create_button = tk.Button(db_data_frame, text="Criar", command=send_create_db)
-    db_create_button.pack()
-    
+    db_password_entry.insert(0, "SENHA2senha.")
+   
 def close_create_database_window():
     global create_database_window
     create_database_window.destroy()
@@ -100,9 +120,17 @@ def close_execute_query_window():
 def close_import_csv_window():
     import_csv_window.destroy() 
 
-def create_database():  
-    create_database_window_config()
+def close_query_results_window():
+    query_results_window.destroy()  
+    create_current_database_window()  
 
+#def close_connect_to_database_window():
+#    connect_to_database_window.destroy() 
+
+def create_database():  
+    create_database_window_config("Criar Banco de Dados")
+    db_create_button = tk.Button(db_data_frame, text="Criar", command=send_create_db)
+    db_create_button.pack()
 
     
 def select_database():  
@@ -170,6 +198,7 @@ def login_database(i: int):
     db_user_login_label.pack()
     db_user_login_entry = tk.Entry(db_user_login_frame)
     db_user_login_entry.pack()
+    db_user_login_entry.insert(0, "user")
 
     db_password_login_frame = tk.Frame(db_login_frame, pady=10)
     db_password_login_frame.pack()
@@ -177,6 +206,7 @@ def login_database(i: int):
     db_password_login_label.pack()
     db_password_login_entry = tk.Entry(db_password_login_frame)
     db_password_login_entry.pack()
+    db_password_login_entry.insert(0, "SENHA2senha.")
 
     db_login_button = tk.Button(db_login_frame, text="Confirmar", command= verify_login)
     db_login_button.pack()
@@ -239,27 +269,81 @@ def create_current_database_window():
     else:    
         db_tables_list = tk.Label(current_db_frame, text="Tabelas existentes: ")
         db_tables_list.pack()
+        print("MOSTRAR TABELAS EXISTENTES")
+        print(current_database.tables_list)
         for i, table in enumerate(current_database.tables_list):
             print(table.table_name)
-            table_list = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, state = tk.DISABLED)
-            table_list.pack(pady=10)
+            table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, state = tk.DISABLED)
+            table_list_button.pack(pady=10, side= tk.LEFT)
 
 def execute_query_function():
-    global query_text
-    current_database.execute_query(query_text.get(1.0, tk.END))
+    global query_text, query_results, query_columns, result_table
+    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
+    query_columns = current_database.get_query_columns()
+    #current_database.execute_query(query_text.get(1.0, tk.END))
+    print("QUERY \n")
     print(query_text.get(1.0, tk.END))
-    table = current_database.create_table(query_text.get(1.0, tk.END))
-    print(table.table_name)
-    print("criou?")
-    close_execute_query_window()
-    create_current_database_window()
+    print("RESULTS \n")
+    print(query_results)
+    print()
+    #result_strings = [item for item in query_results]
+    #lines (total of registers) x columns (table fields)
+    column_lengths = len(query_results[0])
+    result_table = np.zeros((len(query_results), column_lengths), dtype=object)
+    print("linhas: " + str(len(query_results)))
+    print("colunas: " + str(column_lengths))
 
-def show_query_results():
-    pass
+    #Save result on table
+    for i in range(result_table.shape[0]):
+        for j in range(result_table.shape[1]):
+            result_table[i, j] = str(query_results[i][j])
+
+    
+    print(result_table)
+    
+    #table = current_database.create_table(query_text.get(1.0, tk.END))
+    #print(table.table_name)
+    #print("criou?")
+    close_execute_query_window()
+    create_query_results_window()
+
+def create_query_results_window():
+    global query_results_window
+
+    query_results_window = tk.Toplevel()
+    query_results_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
+    query_results_window.geometry("1400x800")
+    #select_database_window.iconbitmap('src/icons/database.ico')
+    query_results_window.resizable(False, False)
+    query_results_window.focus_force()
+    query_results_window.grab_set()
+    query_results_window.transient(main_window)
+    query_results_window.protocol("WM_DELETE_WINDOW", lambda: close_query_results_window())
+
+    query_results_frame = tk.Frame(query_results_window, pady=10)
+    query_results_frame.pack(expand=True, fill=tk.BOTH)
+    
+    tree = ttk.Treeview(query_results_frame, columns=query_columns, show="headings")
+
+    print(query_columns)
+    print(result_table)
+
+    #config headings
+    for column_str in query_columns:
+        tree.heading(column_str,text=column_str)
+        tree.column(column_str, anchor="center")
+
+    #config columns data
+    for i in range(result_table.shape[0]):
+        tree.insert("", tk.END, values=tuple(result_table[i]))
+
+    tree.pack(expand=True, fill=tk.BOTH)
 
 
 def connect_database():    
-	pass
+    create_database_window_config("Conectar a um Banco de Dados existente")
+    connect_create_button = tk.Button(db_data_frame, text="Conectar", command=send_connect_db)
+    connect_create_button.pack()	
 
 def import_csv_function():
     #se deu tudo certo
@@ -329,15 +413,6 @@ choose_database_button.pack(pady=10)
 connect_to_database_button = tk.Button(main_window, text="Conectar a um banco de dados", borderwidth=5, padx=15, pady=15, command=connect_database)
 connect_to_database_button.pack(pady=10)
 
-
-#-------------------------------------------------------
-
-#dentro do database
-#selecionar botão de criar tabela e as tabelas existentes listadas em botões
-# Se criar tabela: aparece um text box já escrito CREATE TABLE para completar a query
-# Se seleciona uma tabela existente, aparece um text box para realizar a query dentro daquela tabela
-# Tem que aparecer o nome da tabela atual
-#Depois de um select, abrir nova janela para exibir resultados
 
 
 
