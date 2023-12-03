@@ -6,7 +6,7 @@ from mysql.connector import Error
 class ManjaSQL:
 
     def __init__(self, last_id: int) -> None:
-        self.database_name_list = []
+        #self.database_name_list = []
         self.database_list: List[DataBase] = [] 
         #lista do tipo database tbm
         self.new_database_name = ""
@@ -19,7 +19,6 @@ class ManjaSQL:
         #Cria um diretorio com esse nome
         self.new_database_name = name
         new_database = DataBase(self.iterate_new_id(), name, host, user, password)
-        self.database_name_list.append(self.new_database_name)
         self.database_list.append(new_database)
         return new_database
 
