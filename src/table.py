@@ -8,14 +8,15 @@ class Table:
         self.table_name = table_name
         self.fields_list: List[Field] = [] 
         self.fields_list: List[Field] = [] 
-        self.data_list = []
+        self.data_dict = {}
         self.primary_key: List[Field] = [] 
         self.foreign_key : List[Field] = [] 
+        self.unique_key : List[Field] = []
         self.current_field_id = 0
 
-    def create_field(self, name: str, type: str):
+    def create_field(self, name: str, type: str, constraints: str):
         id = "field_" + str(self.current_field_id) + "_" + self.table_id
-        new_field = Field(id, name, type)
+        new_field = Field(id, name, type, constraints)
         self.current_field_id += 1
         self.fields_list.append(new_field)
         #define primary and foreign keys here
@@ -28,21 +29,39 @@ class Table:
     #Define attributes if field is foreignkey
     #Parameters:
     #foreign_data = [field_name, origin_table_name, origin_field_name, constraints]
-    def define_foreign_key(self, foreign_data: str):
-        field_object = (field for i, field in enumerate(self.fields_list) if self.fields_list[i].field_name == foreign_data[0])
-        self.foreign_key.append(field_object)
+    def define_key_type(self, field: Field, key_data: str):
+        if field is None:
+            field_object = (field for i, field in enumerate(self.fields_list) if self.fields_list[i].field_name == key_data[0])
+        else:
+            field_object = field
 
-        field_object.is_foreign_key = True
-        field_object.origin_field_name = foreign_data[1]
-        field_object.origin_table_name = foreign_data[2]
-        field_object.foreign_key_constraints = foreign_data[3]
+        field_object.key_type = key_data[0]
+        field_object.origin_table_name = key_data[1]
+        field_object.foreign_key_constraints = key_data[2]
+
+        if field_object.key_type == "PRIMARY KEY":
+            self.primary_key.append(field_object)
+        elif field_object.key_type == "FOREIGN KEY":
+            self.foreign_key.append(field_object)
+        elif field_object.key_type == "UNIQUE KEY":
+            self.unique_key.append(field_object)
 
     def define_primary_key(self, name: str):
         field_object = (field for i, field in enumerate(self.fields_list) if self.fields_list[i].field_name == name)
         self.primary_key.append(field_object)
 
-    def insert_data(self, data: List):
-        self.data_list.append(data)
+    #Same length of indexes and data
+    def insert_data(self, indexes: List, data: List):
+        if len(indexes) == len(data):
+            for i, index in enumerate(indexes):
+                print(index)
+                print(i)
+                self.data_dict[index] = data[i]
+        else:
+            print("Não foi possível inserir os dados")        
+    #iimport csv
+    #insert
+    #update
  
     def update_data(self, query: str, where: str):
         #descobre proxima palavra depois do where
