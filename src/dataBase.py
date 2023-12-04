@@ -292,12 +292,15 @@ class DataBase:
         for table in self.tables_list:
             print(table.table_name.upper(), table_name)
             if table.table_name.upper() == table_name:
-                for field in table.fields_list:
+                table.data_dict[split_query[field_name[0]]] = new_values[0]
+                print(table.data_dict)
+                '''for field in table.fields_list:
                     for k in range(len(field_name)):
                         print(field.field_name.upper(), field_name[k])
                         if field.field_name.upper() == field_name[k]:
                             if self.condition_check(conditions, condition_joiner, table):
-                                field.value = new_values[k]
+                                field.value = new_values[k]'''
+                                
 
     def delete(self, query: str):
         query = query.upper()
