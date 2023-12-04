@@ -273,7 +273,7 @@ def execute_query_function():
     #query translate
     query = query_text.get(1.0, tk.END)
     current_database.translator(query)
-    
+    current_database.execute_query(query_text.get(1.0, tk.END))
     current_database.update(query_text.get(1.0, tk.END))
     current_database.delete(query_text.get(1.0, tk.END))
     #Se create table 

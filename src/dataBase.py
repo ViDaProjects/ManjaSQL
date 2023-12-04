@@ -7,6 +7,7 @@ from mysql.connector import Error
 import re
 import os
 import json
+from field import Field
 
 class DataBase:
 
@@ -107,7 +108,7 @@ class DataBase:
         #passa por toda a query
         upper_query = query.upper()
         command = upper_query.split()
-
+        result = False
     #Viviane confia nessas modificações
         if command[0] == "CREATE":
             #Se create table: cria tabela
@@ -127,7 +128,8 @@ class DataBase:
 
         if command[0] == "SELECT":
            #se select
-            self.select(upper_query)
+            result = self.select(upper_query)
+        return result
         
     def inner_join(table_a: Table, table_b: Table, on_column: str):
         inner_join_table = []
@@ -135,7 +137,7 @@ class DataBase:
         for row_a in table_a.data_dict_list:
             for row_b in table_b.data_dict_list:
                 if row_a[on_column] == row_b[on_column]:
-                    inner_join_table.append({**row_a, **row_b})  # Merge os dicionários
+                    inner_join_table.append({row_a, row_b})  # Merge os dicionários
 
         return inner_join_table
     
@@ -193,11 +195,77 @@ class DataBase:
             table.insert_data(indexes, data, False, self.db_name)
 
     def select(self, query: str):
-        table_name = self.find_next_word(query, "FROM")
-        for i, table in enumerate(self.tables_list):
-            if table.table_name == table_name:
-                self.tables_list[i].select_data(query)
+        split_query = self.query_splitter(query)
+        
+        key_words = ["SELECT", "DISTINCT", "FROM",  "WHERE", "GROUP", "BY", "HAVING", "ORDER", "BY", "INNER", "JOIN"]
+        
+        # Get field names
+        field_names = []
+        select_index = split_query.index(key_words[0])
+        distance = 1
+        if key_words[1] in split_query:
+            distance = 2
+        for i in range(select_index + distance, len(split_query)):
+            if split_query[i] in key_words:
                 break
+            field_names.append(split_query[i])
+        
+        # Get table names
+        table_names = []
+        from_index = split_query.index(key_words[2])
+        for i in range(from_index + 1, len(split_query)):
+            if split_query[i] in key_words:
+                break
+            table_names.append(split_query[i])
+
+        #print(table_names)
+
+        selected = []
+        # Perform the select process
+        for table in self.tables_list: # Só está extraindo de uma tabela
+            if table_names[0] == table.table_name.upper():
+                #print(table.data_dict_list)
+                if len(table_names) == 1:
+                    selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
+                    
+        # Deals with conditions declared by WHERE
+        conditions = []
+        if "WHERE" in split_query:
+            where_index = split_query.index(key_words[3])
+            for i in range(where_index + 1, len(split_query)):
+                if split_query[i] in key_words:
+                    break
+                conditions.append(split_query[i])
+        
+        condition_selected = []
+        for table in self.tables_list:
+            if table.table_name.upper() == table_names[0]:
+                for i, data in enumerate(selected):
+                    if conditions:
+                        if self.condition_check(conditions, i, table):
+                            condition_selected.append(selected[i])
+                    else:
+                        condition_selected.append(selected[i])
+                selected = condition_selected
+            
+        # Dealing with distinct
+        if "DISTINCT" in split_query:
+            unique_data = [dict(t) for t in {tuple(sorted(entry.items())) for entry in condition_selected}]
+            selected = unique_data
+
+
+        order_field = []
+        if "ORDER" in split_query:
+            order_index = split_query.index(key_words[7])    
+            order_field.append(split_query[order_index + 2])
+            reverse = False
+            if "DESC" in split_query:
+                reverse = True
+            print(reverse)
+            selected = sorted(selected, key=lambda x: x.get(order_field[0], ""), reverse = reverse)
+        print(selected)
+        return selected
+            
 
     def condition_check(self, comparison: List[str], index: int, table: Table):
         # Passar uma lista subquerry com o que eu preciso
@@ -224,6 +292,8 @@ class DataBase:
         result = []
         for word in split_query:
             word = word.replace (";", "")
+            word = word.replace ('(', "")
+            word = word.replace(")", "")
             result.append(word.replace(",", ""))
         split_query = result
 
@@ -277,7 +347,6 @@ class DataBase:
         if where_index != len(split_query):
             conditions = split_query[split_query.index("WHERE") + 1:]
 
-        
         # Update the tables
         for table in self.tables_list:
             # If this is the correct table
@@ -292,7 +361,7 @@ class DataBase:
     def delete(self, query: str):
         split_query = self.query_splitter(query)
         table_name = split_query[split_query.index("FROM") + 1]
-        print(table_name)
+
         # Extracts what are the fields and the values that will be attributed to them
         where_index = len(split_query)
         if "WHERE" in split_query:
@@ -317,7 +386,38 @@ class DataBase:
                 
 
     def insert(self, query: str):
-        pass
+        split_query = self.query_splitter(query) # Tirar os parenteses
+
+        into_index = split_query.index("INTO")
+        table_name = split_query[into_index + 1]
+
+        values_index = len(split_query)
+        if "VALUES" in split_query:
+            values_index = split_query.index("VALUES")
+
+        order = []
+
+        if values_index > into_index + 2:
+            order = split_query[into_index + 2 : values_index]
+        
+        values = split_query[values_index + 1 : ]
+        
+        insert = {}
+        for table in self.tables_list:
+            # If this is the correct table
+            if table.table_name.upper() == table_name:
+                if order:
+                    
+                    for j, data in enumerate(values):
+                        insert[order[j]] = data
+                else:
+                    for i, field in enumerate(table.fields_list):
+                        insert[field.field_name] = values[i]
+                print(insert)
+                table.data_dict_list.append(insert)
+                print(table.data_dict_list)
+
+        #print(table.data_dict_list)
     
     def save_data():
         pass
@@ -356,4 +456,4 @@ class DataBase:
     
 if __name__ == "__main__":
     db = DataBase(1, "teste", "user", "password", "localhost")
-    db.execute_query("UPDATE Customers SET ContactName = 'Alfred Schmidt', City= 'Frankfurt' WHERE CustomerID = 1 and customerID =2;")
+    db.execute_query("SELECT ProductID, ProductName, CategoryName FROM Products, Tables INNER JOIN Categories ON Products CategoryID; ")
