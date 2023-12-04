@@ -270,13 +270,12 @@ def create_current_database_window():
 #Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
-    
     #query translate
     query = query_text.get(1.0, tk.END)
     current_database.translator(query)
     
     current_database.update(query_text.get(1.0, tk.END))
-    
+    current_database.delete(query_text.get(1.0, tk.END))
     #Se create table 
         #Cria tabela
         # query_results = "Tabela criada"
@@ -302,7 +301,6 @@ def execute_query_function():
      
   
     #current_database.execute_query(query_text.get(1.0, tk.END))
-
     #result_strings = [item for item in query_results]
     #lines (total of registers) x columns (table fields)
 

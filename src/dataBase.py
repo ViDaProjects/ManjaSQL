@@ -105,27 +105,29 @@ class DataBase:
     #Só funciona com uma palavra
     def execute_query(self, query: str):
         #passa por toda a query
-        command = query.upper().split()
+        upper_query = query.upper()
+        command = upper_query.split()
 
-        if command == "CREATE TABLE":
+    #Viviane confia nessas modificações
+        if command[0] == "CREATE":
             #Se create table: cria tabela
-            self.create_table(query)
+            self.create_table(upper_query)
 
-        if command == "INSERT INTO":
+        if command[0] == "INSERT":
             #Se insert into:
-            self.insert(query)
+            self.insert(upper_query)
 
-        if command == "UPDATE":
+        if command[0] == "UPDATE":
             #se update
-            self.update(query)
+            self.update(upper_query)
 
-        if command == "DELETE":
+        if command[0] == "DELETE":
             #se delete
-            self.delete(query)
+            self.delete(upper_query)
 
-        if command == "SELECT":
+        if command[0] == "SELECT":
            #se select
-            self.select(query)
+            self.select(upper_query)
         
     def inner_join(table_a: Table, table_b: Table, on_column: str):
         inner_join_table = []
@@ -197,12 +199,18 @@ class DataBase:
                 self.tables_list[i].select_data(query)
                 break
 
+    def condition_check(self, comparison: List[str], index: int, table: Table):
+        # Passar uma lista subquerry com o que eu preciso
+        evaluation = []
+        evaluation.append(table.perform_operation(str(table.data_dict_list[index].get(comparison[0])).upper(), comparison[1], comparison[2]))
+        if len(comparison) <= 3:
+            return evaluation[0]
+        evaluation.append(table.perform_operation(str(table.data_dict_list[index].get(comparison[4])).upper(), comparison[5], comparison[6]))
 
-    def update(self, query: str):
-        pass
+        return table.perform_operation(evaluation[0], comparison[3], evaluation[1])
 
-    def delete(self, query: str):
-       
+    def query_splitter(self, query: str) -> str:
+        query = query.upper()
         # Sets the split query to be readable
         split_query = query.split()
         
@@ -212,9 +220,43 @@ class DataBase:
             split_text = re.split(pattern, text)
             result.extend(filter(None, split_text))
         split_query = result
+
+        result = []
+        for word in split_query:
+            word = word.replace (";", "")
+            result.append(word.replace(",", ""))
+        split_query = result
+
+        merged_strings = []
         
+        merging = False
+        for i in range(len(split_query)):
+
+            if merging:
+                merged_strings[-1] += " " + split_query[i]
+            else:
+                merged_strings.append(split_query[i])
+
+
+            if split_query[i].startswith("'") and not split_query[i].endswith("'"):
+                merging = True
+
+            elif split_query[i].endswith("'") and not split_query[i].startswith("'"):
+                merging = False
+
+            elif split_query[i].endswith("'") and split_query[i].startswith("'"):
+                merging = False
+
+        split_query = []
+        for words in merged_strings:
+            split_query.append(words.strip("'"))
+        return split_query
+    
+    def update(self, query: str):
+        
+        split_query = self.query_splitter(query)
         # Table name to be checked later
-        table_name = split_query[split_query.index("FROM") + 1]
+        table_name = split_query[split_query.index("UPDATE") + 1]
         
         # Extracts what are the fields and the values that will be attributed to them
         where_index = len(split_query)
@@ -222,7 +264,6 @@ class DataBase:
             where_index = split_query.index("WHERE")
         set_index = split_query.index("SET")
 
-        #nao preciso
         field_name = []
         new_values = []
         i = 1
@@ -232,26 +273,52 @@ class DataBase:
             i += 3
 
         conditions = []
-
-        if where_index != len(split_query):
-            i = 1
-            while where_index + i < len(split_query):
-                if where_index + 4 >= len(split_query):
-                    condition = ' '.join(split_query[where_index + 1:where_index + 4])
-                conditions.append(condition)
         
-        # Delete table
+        if where_index != len(split_query):
+            conditions = split_query[split_query.index("WHERE") + 1:]
+
+        
+        # Update the tables
         for table in self.tables_list:
-            if table.table_name == table_name:
-                for field in table.fields_list:
-                    for k in range(len(field_name)):
-                        if field.field_name == field_name[k]:
-                            if condition is met:
-                                field.value == new_values[k]      
+            # If this is the correct table
+            if table.table_name.upper() == table_name:
+                for i, data in enumerate(table.data_dict_list):
+                    # Read all fields checking if the condition is met
+                    if self.condition_check(conditions, i, table):
+                        # Update values
+                        for x in range(len(field_name)):
+                            data[field_name[x]] = new_values[x]
+
+    def delete(self, query: str):
+        split_query = self.query_splitter(query)
+        table_name = split_query[split_query.index("FROM") + 1]
+        print(table_name)
+        # Extracts what are the fields and the values that will be attributed to them
+        where_index = len(split_query)
+        if "WHERE" in split_query:
+            where_index = split_query.index("WHERE")
+
+        conditions = []
+        
+        if where_index != len(split_query):
+            conditions = split_query[split_query.index("WHERE") + 1:]
+        print(conditions)
+
+        for table in self.tables_list:
+            # If this is the correct table
+            if table.table_name.upper() == table_name:
+                for i, data in enumerate(table.data_dict_list):
+                    # Read all fields checking if the condition is met
+                    if self.condition_check(conditions, i, table):
+                        #print(table.data_dict_list)
+                        del table.data_dict_list[i]
+                        #print(table.data_dict_list)
+
+                
 
     def insert(self, query: str):
         pass
-
+    
     def save_data():
         pass
 
@@ -276,4 +343,17 @@ class DataBase:
 
         return new_query
 
-
+    #TA FUNCIONANDO SO COM UMA PALAVRA
+    def find_next_word(self, query:str, searched_word: str) -> str:  # Update the function signature to specify the return type
+        query_words = query.split()
+        #print(query_words)
+        for i, word in enumerate(query_words):
+            if searched_word.upper() == word:
+                next_word = query_words[i + 1] if i + 1 < len(query_words) else ""
+                #print(f"Encontrou '{searched_word}' na palavra '{word}'. Próxima palavra: {next_word}")
+                return next_word
+        return ""  # Ensure the function always returns a value of type "str"
+    
+if __name__ == "__main__":
+    db = DataBase(1, "teste", "user", "password", "localhost")
+    db.execute_query("UPDATE Customers SET ContactName = 'Alfred Schmidt', City= 'Frankfurt' WHERE CustomerID = 1 and customerID =2;")

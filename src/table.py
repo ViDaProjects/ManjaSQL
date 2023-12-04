@@ -104,10 +104,12 @@ class Table:
 
     #Same length of indexes and data
     def insert_data(self, indexes: List, data: List, is_csv: bool, db_name: str):
+        #upper_indexes = [word.upper() for word in indexes]
         data_current_dict = {}
         if len(indexes) == len(data):
             if is_csv:
                 for index in indexes:
+                    #data_current_dict[upper_indexes[i]] = data[index]
                     data_current_dict[index] = data[index]
             else:
                 for i, index in enumerate(indexes):
@@ -206,6 +208,23 @@ class Table:
                 self.tables_list[i].select_data(query)
                 break
 
+    def perform_operation(self, value1, operator, value2):
+        if operator == '+':
+            return value1 + value2
+        elif operator == '-':
+            return value1 - value2
+        elif operator == '>':
+            return value1 > value2
+        elif operator == '<':
+            return value1 < value2
+        elif operator == '=':
+            return value1 == value2
+        elif operator.upper() == 'AND':
+            return value1 and value2
+        elif operator.upper() == 'OR':
+            return value1 or value2
+        else:
+            raise ValueError("Invalid operator")
 
     def recognize_operator(self, string_operator):
         operators = {
@@ -213,7 +232,9 @@ class Table:
             '-': lambda x, y: x - y,
             '>': lambda x, y: x > y,
             '<': lambda x, y: x < y,
-            '=': lambda x, y: x == y
+            '=': lambda x, y: x == y,
+            'AND': lambda x, y: x and y,
+            'OR': lambda x, y: x or y
         }
 
         return operators.get(string_operator, None)                
