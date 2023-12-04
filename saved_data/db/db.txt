@@ -1,0 +1,4 @@
+db
+localhost
+user
+SENHA2senha.

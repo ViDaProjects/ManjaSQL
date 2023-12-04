@@ -12,10 +12,11 @@ class ManjaSQL:
         self.id = last_id
         #save last id data on txt or json for backup
         self.load_saved_data()
-    
+        self.saved_data_default_path = ""
 
     def create_database(self, name: str, host: str, user: str, password: str):
         #Cria um diretorio com esse nome
+        print("default manja "+ self.saved_data_default_path)
         self.new_database_name = name
         new_database = DataBase(self.iterate_new_id(), name, host, user, password)
         self.database_list.append(new_database)
@@ -24,9 +25,12 @@ class ManjaSQL:
 
     def save_database_data(self, db: DataBase):
         #Create database dir
-        current_dir = os.getcwd()
+        current_dir = self.saved_data_default_path
+        print("Default" + current_dir)
         path_new_database = os.path.join(current_dir, db.db_name)
+        db.db_default_path = path_new_database
         print(f'save database data diretorio atual: {os.getcwd()}')
+
         if os.path.exists(path_new_database) and os.path.isdir(path_new_database):
             os.chdir(path_new_database)
             path_new_database_txt = os.path.join(path_new_database, (db.db_name + ".txt"))
@@ -107,7 +111,7 @@ class ManjaSQL:
         if os.path.exists(path_saved_data) and os.path.isdir(path_saved_data):
             # Muda para o diretório "ManjaSQL/saved_data"
             os.chdir(path_saved_data)
-
+            self.saved_data_default_path = str(os.getcwd())
             # Agora o diretório de trabalho é "ManjaSQL/saved_data"
             print(f'Diretório atual load saved data: {os.getcwd()}')
 
@@ -121,5 +125,6 @@ class ManjaSQL:
         else:
             os.mkdir(path_saved_data)
             os.chdir(path_saved_data)
+            self.saved_data_default_path = str(os.getcwd())
             print(f'Diretório atual load saved data: {os.getcwd()}')
 

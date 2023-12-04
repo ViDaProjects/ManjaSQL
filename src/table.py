@@ -2,6 +2,8 @@ from field import Field
 from typing import List
 import os 
 import json
+from decimal import Decimal
+
 
 class Table:
 
@@ -15,6 +17,7 @@ class Table:
         self.foreign_key : List[Field] = [] 
         self.unique_key : List[Field] = []
         self.current_field_id = 0
+        self.table_default_path = ""
 
     def create_field(self, name: str, type: str, constraints: str, db_name: str):
         id = "field_" + str(self.current_field_id) + "_" + self.table_id
@@ -29,8 +32,8 @@ class Table:
         field_dict = {}
         current_path = os.getcwd()
         db_path = os.path.join(current_path, db_name) 
-        json_path = os.path.join(db_path, self.table_name + ".json")
-        
+        json_path = os.path.join(self.table_default_path, self.table_name + ".json")
+        print(json_path)
         existent_data = self.get_existent_table_json(db_name)
 
         field_dict['FIELD_ID'] = field.field_id
@@ -42,28 +45,35 @@ class Table:
         field_dict['FOREIGIN CONSTRAINTS'] = ""
         print("tamanho")
         print(len(self.fields_list))
-        existent_data['COLUMNS'][len(self.fields_list)] = field_dict
-        #existent_data['COLUMNS'].append = field_dict
+        print("PASSOU POR AQUIII "+ field.field_name)
+        print(existent_data)
+        existent_data['COLUMNS'][field.field_name] = field_dict
+        #existent_data['COLUMNS'].append(field_dict)
 
         #Fazer o columns como um dicionário também e uma chave para acessar (field_name)
+        json_string = json.dumps(existent_data, default=self.bytes_converter, indent=2)
 
+        # Escrevendo a string JSON no arquivo .json
         with open(json_path, 'w') as json_file:
-            json.dump(existent_data, json_file)
-    
-    
+            json_file.write(json_string)
+
     def import_fields_from_csv(self, fields: List[Field]):
         self.fields_list = fields
         
     def get_existent_table_json(self, db_name: str):
         current_path = os.getcwd()
+        print(current_path)
         db_path = os.path.join(current_path, db_name) 
-        json_path = os.path.join(db_path, self.table_name + ".json")
+        print(db_path)
+        json_path = os.path.join(self.table_default_path, self.table_name + ".json")
+        print(json_path)
         print(f'Diretório atual get existent data on json: {os.getcwd()}')
 
         existent_data = {}
-        with open(json_path, 'r') as json_file:
-            existent_data = json.load(json_file)
-        
+        if os.path.exists(json_path):
+            with open(json_path, 'r') as json_file:
+                existent_data = json.load(json_file)
+            
         return existent_data
 
 
@@ -126,16 +136,28 @@ class Table:
     def save_table_data_on_json(self, data: List, db_name: str):
         current_path = os.getcwd()
         db_path = os.path.join(current_path, db_name) 
-        json_path = os.path.join(db_path, self.table_name + ".json")        
+        json_path = os.path.join(self.table_default_path, self.table_name + ".json")        
         
         existent_data = self.get_existent_table_json(db_name)
-        index = len(self.data_dict_list)
-        print(existent_data)
-        existent_data['DATA'][index] = data
+        index = str(len(self.data_dict_list))
+        print(self.data_dict_list)
+        existent_data['DATA'] = self.data_dict_list
 
+        json_string = json.dumps(existent_data, default=self.bytes_converter, indent=2)
+
+        # Escrevendo a string JSON no arquivo .json
         with open(json_path, 'w') as json_file:
-            json.dump(existent_data, json_file) 
-    
+            json_file.write(json_string)
+        #with open(json_path, 'w') as json_file:
+        #    json.dump(existent_data, json_file) 
+
+    def bytes_converter(self, obj):
+        if isinstance(obj, bytes):
+            return obj.decode('utf-8')  # Altere a codificação se necessário
+        if isinstance(obj, Decimal):
+            return float(obj) 
+        raise TypeError(f"Objeto do tipo {type(obj)} não é serializável.")
+
 
     def update_data(self, query: str, where: str):
         #descobre proxima palavra depois do where

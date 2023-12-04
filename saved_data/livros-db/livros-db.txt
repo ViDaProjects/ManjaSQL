@@ -1,0 +1,4 @@
+livros-db
+localhost
+user
+SENHA2senha.
