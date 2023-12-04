@@ -194,11 +194,11 @@ def login_database(i: int):
     db_cancel_login_button.pack()
 
 def create_query_window():
-    global query_text, execute_query_window
+    global query_text, execute_query_window, query_db_frame
     close_current_database_window()
     execute_query_window = tk.Toplevel()
     execute_query_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
-    execute_query_window.geometry("800x500")
+    execute_query_window.geometry("800x650")
     execute_query_window.resizable(False, False)
     execute_query_window.focus_force()
     execute_query_window.grab_set()
@@ -266,54 +266,31 @@ def create_current_database_window():
             table_list_button.pack(pady=10, side= tk.LEFT)
 
 
-#APENAS TESTE DO "select livro_id, titulo from livros"
-#Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
-    global query_text, query_results, query_columns, result_table
+    global query_text, query_columns, result_table, query_db_frame
     #query translate
-    query = query_text.get(1.0, tk.END)
-    current_database.translator(query)
-    current_database.execute_query(query_text.get(1.0, tk.END))
-    current_database.update(query_text.get(1.0, tk.END))
-    current_database.delete(query_text.get(1.0, tk.END))
-    #Se create table 
-        #Cria tabela
-        # query_results = "Tabela criada"
-
-    #Se insert
-        #Insere dados
-        # query_results = "Dados inseridos"    
-
-    #Se update
-        #atualiza dados
-        # query_results = "Dados atualizados"
-
-    #Se delete
-        #Apaga tabela
-        # query_results = "Tabela deletada"    
-    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
-    #Colocar o select em uma função separada(??)
-    #Se select
-    show_select_results(query_results)
-        # query_results é zerado e recebe apenas os resultados da requisição 
-        # query_results = Dados pra mostrar na tabela de resultados
-        # Executa comandos para preencher result_table
-     
+    query_manja = query_text.get(1.0, tk.END)
+    query_sql = current_database.translator(query_manja)
+    
+    #trocar para query_sql
+    query_results = current_database.execute_query(query_sql)
+    #current_database.update(query_text.get(1.0, tk.END))
+    #current_database.delete(query_text.get(1.0, tk.END))
+    if query_results:
+        if query_results == "Query executada com sucesso!":
+            print("Label mostra?")
+            query_result_label = tk.Label(query_db_frame, text=query_results)
+            query_result_label.pack()
+        else:
+            show_select_results(query_results)
   
-    #current_database.execute_query(query_text.get(1.0, tk.END))
-    #result_strings = [item for item in query_results]
-    #lines (total of registers) x columns (table fields)
-
-    
-    print(result_table)
-
-    
-    
 
 def show_select_results(query_results: list):
-    
+    global query_columns, result_table
+    #PRECISO DO QUERY COLUMNSSSS
+    query_columns = current_database.field_names_from_select
     #Columns and lines quantities in this select
-    columns_len = len(query_results[0])
+    columns_len = len(query_columns)
     lines_len = len(query_results)
     result_table = np.zeros((lines_len, columns_len), dtype=object)
     print("linhas: " + str(lines_len))
@@ -322,7 +299,8 @@ def show_select_results(query_results: list):
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
-            result_table[i, j] = str(query_results[i][j])
+            result_table[i, j] = (str(result) for result in query_results[i])
+            #result_table[i, j] = str(query_results[i][j])
     
     close_execute_query_window()
     create_query_results_window()

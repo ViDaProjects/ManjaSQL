@@ -1,0 +1,47 @@
+{
+  "TABLE_ID": "table_2_db_1",
+  "TABLE_NAME": "pedidos",
+  "COLUMNS": {
+    "PEDIDO_ID": {
+      "FIELD_ID": "field_0_table_2_db_1",
+      "FIELD_NAME": "PEDIDO_ID",
+      "TYPE": "bigint unsigned",
+      "CONSTRAINTS": "NO",
+      "KEY TYPE": "",
+      "ORIGIN TABLE": "",
+      "FOREIGIN CONSTRAINTS": ""
+    },
+    "USUARIO_ID": {
+      "FIELD_ID": "field_1_table_2_db_1",
+      "FIELD_NAME": "USUARIO_ID",
+      "TYPE": "smallint",
+      "CONSTRAINTS": "NO",
+      "KEY TYPE": "",
+      "ORIGIN TABLE": "",
+      "FOREIGIN CONSTRAINTS": ""
+    },
+    "DATA_PEDIDO": {
+      "FIELD_ID": "field_2_table_2_db_1",
+      "FIELD_NAME": "DATA_PEDIDO",
+      "TYPE": "date",
+      "CONSTRAINTS": "NO",
+      "KEY TYPE": "",
+      "ORIGIN TABLE": "",
+      "FOREIGIN CONSTRAINTS": ""
+    },
+    "TIPO_PAG": {
+      "FIELD_ID": "field_3_table_2_db_1",
+      "FIELD_NAME": "TIPO_PAG",
+      "TYPE": "smallint",
+      "CONSTRAINTS": "NO",
+      "KEY TYPE": "",
+      "ORIGIN TABLE": "",
+      "FOREIGIN CONSTRAINTS": ""
+    }
+  },
+  "DATA": {},
+  "KEY_DATA": {},
+  "PRIMARY_KEY": [],
+  "FOREIGN_KEY": [],
+  "UNIQUE_KEY": []
+}

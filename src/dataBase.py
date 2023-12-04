@@ -16,6 +16,7 @@ class DataBase:
         self.new_table_name = "" #create table
         self.current_table_id = 0 #create table
         self.db_default_path = "" #manage json
+        self.field_names_from_select = []
         #database data
         self.db_id = id
         self.db_name = name
@@ -113,22 +114,27 @@ class DataBase:
         if command[0] == "CREATE":
             #Se create table: cria tabela
             self.create_table(upper_query)
+            result = "Query executada com sucesso!"
 
         if command[0] == "INSERT":
             #Se insert into:
             self.insert(upper_query)
+            result = "Query executada com sucesso!"
 
         if command[0] == "UPDATE":
             #se update
             self.update(upper_query)
+            result = "Query executada com sucesso!"
 
         if command[0] == "DELETE":
             #se delete
             self.delete(upper_query)
+            result = "Query executada com sucesso!"
 
         if command[0] == "SELECT":
            #se select
             result = self.select(upper_query)
+        print(result)
         return result
         
     def inner_join(table_a: Table, table_b: Table, on_column: str):
@@ -210,6 +216,9 @@ class DataBase:
                 break
             field_names.append(split_query[i])
         
+        self.field_names_from_select = field_names
+        print("field names no select")
+        print(field_names)
         # Get table names
         table_names = []
         from_index = split_query.index(key_words[2])
@@ -253,6 +262,9 @@ class DataBase:
             unique_data = [dict(t) for t in {tuple(sorted(entry.items())) for entry in condition_selected}]
             selected = unique_data
 
+        self.field_names_from_select = field_names
+        print("field names no select")
+        print(field_names)
 
         order_field = []
         if "ORDER" in split_query:
@@ -356,6 +368,7 @@ class DataBase:
                     if self.condition_check(conditions, i, table):
                         # Update values
                         for x in range(len(field_name)):
+                            #USAR INSERT DATA
                             data[field_name[x]] = new_values[x]
 
     def delete(self, query: str):
@@ -380,6 +393,8 @@ class DataBase:
                     # Read all fields checking if the condition is met
                     if self.condition_check(conditions, i, table):
                         #print(table.data_dict_list)
+                        
+                        #REESCREVER O JSON DE ALGUM JEITO
                         del table.data_dict_list[i]
                         #print(table.data_dict_list)
 
@@ -409,18 +424,18 @@ class DataBase:
                 if order:
                     
                     for j, data in enumerate(values):
+                        #Ver se isso funciona
                         insert[order[j]] = data
                 else:
                     for i, field in enumerate(table.fields_list):
                         insert[field.field_name] = values[i]
                 print(insert)
+                #USAR INSERT DATA
                 table.data_dict_list.append(insert)
                 print(table.data_dict_list)
 
         #print(table.data_dict_list)
     
-    def save_data():
-        pass
 
     def login(self, user: str, password: str):
         return (self.user == user and self.password == password)
