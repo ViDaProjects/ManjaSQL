@@ -75,7 +75,7 @@ class DataBase:
         #Populate current table
         for data in dataframe.to_dict('records'):
             print(data)
-            current_table.insert_data(columns, list(data))
+            current_table.insert_data(columns, data)
 
  
     #Só funciona com uma palavra

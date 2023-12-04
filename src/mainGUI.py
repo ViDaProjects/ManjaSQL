@@ -111,7 +111,8 @@ def close_login_database_window():
     login_database_window.destroy()
     
 def close_execute_query_window():
-    execute_query_window.destroy() 
+    execute_query_window.destroy()
+    create_current_database_window() 
 
 def close_import_csv_window():
     import_csv_window.destroy() 
@@ -237,9 +238,9 @@ def show_all_saved_data(k: int):
     print(query_columns)
     
     print("show all data")
-    print(list(data for data in current_table.data_list))
+    print(list(data for data in current_table.data_dict_list))
     columns_length = len(query_columns)
-    lines_length = len(list(data for data in current_table.data_list))
+    lines_length = len(current_table.data_dict_list)
     result_table = np.zeros((lines_length, columns_length), dtype=object)
     print("linhas: " + str(lines_length))
     print("colunas: " + str(columns_length))
@@ -247,8 +248,11 @@ def show_all_saved_data(k: int):
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
+            print(i)
+            print(query_columns[j])
+            print(current_table.data_dict_list)
             #ERRO AO MOSTRAR DADOS IMPORTADOS DE CSV
-            result_table[i, j] = current_table.data_list[i][j]
+            result_table[i, j] = current_table.data_dict_list[i][query_columns[j]]
     
     create_query_results_window()
 

@@ -7,8 +7,8 @@ class Table:
         self.table_id = table_id
         self.table_name = table_name
         self.fields_list: List[Field] = [] 
-        self.fields_list: List[Field] = [] 
-        self.data_dict = {}
+        self.data_dict_list = []
+        self.data_current_dict = {}
         self.primary_key: List[Field] = [] 
         self.foreign_key : List[Field] = [] 
         self.unique_key : List[Field] = []
@@ -52,11 +52,14 @@ class Table:
 
     #Same length of indexes and data
     def insert_data(self, indexes: List, data: List):
+        data_current_dict = {}
         if len(indexes) == len(data):
+            print(data)
             for i, index in enumerate(indexes):
                 print(index)
                 print(i)
-                self.data_dict[index] = data[i]
+                data_current_dict[index] = data[index]
+            self.data_dict_list.append(data_current_dict)
         else:
             print("Não foi possível inserir os dados")        
     #iimport csv
