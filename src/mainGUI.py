@@ -299,7 +299,7 @@ def create_current_database_window():
 #Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
-    current_database.delete(query_text.get(1.0, tk.END))
+    current_database.execute_query(query_text.get(1.0, tk.END))
 
     column_lengths = len(query_results[0])
     result_table = np.zeros((len(query_results), column_lengths), dtype=object)
