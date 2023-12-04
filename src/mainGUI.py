@@ -295,7 +295,19 @@ def create_current_database_window():
 #Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
-    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
+    current_database.update(query_text.get(1.0, tk.END))
+
+    column_lengths = len(query_results[0])
+    result_table = np.zeros((len(query_results), column_lengths), dtype=object)
+    print("linhas: " + str(len(query_results)))
+    print("colunas: " + str(column_lengths))
+
+    #Save result on table
+    for i in range(result_table.shape[0]):
+        for j in range(result_table.shape[1]):
+            result_table[i, j] = str(query_results[i][j])
+
+    '''query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
     query_columns = current_database.get_query_columns()
     #current_database.execute_query(query_text.get(1.0, tk.END))
     print("QUERY \n")
@@ -316,7 +328,7 @@ def execute_query_function():
             result_table[i, j] = str(query_results[i][j])
 
     
-    print(result_table)
+    print(result_table)'''
 
     close_execute_query_window()
     create_query_results_window()
