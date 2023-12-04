@@ -6,7 +6,7 @@
       "FIELD_ID": "field_0_table_0_db_2",
       "FIELD_NAME": "livro_id",
       "TYPE": "int64",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -15,7 +15,7 @@
       "FIELD_ID": "field_1_table_0_db_2",
       "FIELD_NAME": "titulo",
       "TYPE": "object",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -24,7 +24,7 @@
       "FIELD_ID": "field_2_table_0_db_2",
       "FIELD_NAME": "autor",
       "TYPE": "object",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -33,7 +33,7 @@
       "FIELD_ID": "field_3_table_0_db_2",
       "FIELD_NAME": "edicao",
       "TYPE": "int64",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -42,7 +42,7 @@
       "FIELD_ID": "field_4_table_0_db_2",
       "FIELD_NAME": "ano",
       "TYPE": "int64",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -51,7 +51,7 @@
       "FIELD_ID": "field_5_table_0_db_2",
       "FIELD_NAME": "editora",
       "TYPE": "object",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -60,7 +60,7 @@
       "FIELD_ID": "field_6_table_0_db_2",
       "FIELD_NAME": "genero_id",
       "TYPE": "int64",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -69,7 +69,7 @@
       "FIELD_ID": "field_7_table_0_db_2",
       "FIELD_NAME": "descricao",
       "TYPE": "object",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -78,7 +78,7 @@
       "FIELD_ID": "field_8_table_0_db_2",
       "FIELD_NAME": "preco",
       "TYPE": "int64",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -87,7 +87,7 @@
       "FIELD_ID": "field_9_table_0_db_2",
       "FIELD_NAME": "estoque",
       "TYPE": "int64",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
@@ -96,7 +96,7 @@
       "FIELD_ID": "field_10_table_0_db_2",
       "FIELD_NAME": "reserva",
       "TYPE": "int64",
-      "CONSTRAINTS": "db",
+      "CONSTRAINTS": "livros-from-csv",
       "KEY TYPE": "",
       "ORIGIN TABLE": "",
       "FOREIGIN CONSTRAINTS": ""
