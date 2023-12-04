@@ -30,8 +30,6 @@ def send_create_db():
     current_db = manja.create_database(db_name_entry.get(), db_host_entry.get(), db_user_entry.get(),db_password_entry.get())
     create_label = tk.Label(db_data_frame, text="Banco de dados criado!")
     create_label.pack()    
-    #create_database_window.destroy()
-    print(db.db_name for db in manja.database_list)
 
 def send_connect_db():
     global current_db
@@ -153,7 +151,6 @@ def select_database():
         db_information = tk.Label(db_select_frame, text="Bancos de dados existentes: ")
         db_information.pack()
         for i, database in enumerate(manja.database_list):
-            print(database.db_name)
             existent_database_button = tk.Button(db_select_frame, text=database.db_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: login_database(k))
             existent_database_button.pack(pady=10)
 
@@ -235,23 +232,14 @@ def show_all_saved_data(k: int):
     current_table = current_database.tables_list[k]
     current_database_window.destroy()
     query_columns = list(field.field_name for field in current_table.fields_list)
-    print(query_columns)
     
-    print("show all data")
-    print(list(data for data in current_table.data_dict_list))
     columns_length = len(query_columns)
     lines_length = len(current_table.data_dict_list)
     result_table = np.zeros((lines_length, columns_length), dtype=object)
-    print("linhas: " + str(lines_length))
-    print("colunas: " + str(columns_length))
 
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
-            print(i)
-            print(query_columns[j])
-            print(current_table.data_dict_list)
-            #ERRO AO MOSTRAR DADOS IMPORTADOS DE CSV
             result_table[i, j] = current_table.data_dict_list[i][query_columns[j]]
     
     create_query_results_window()
@@ -263,7 +251,6 @@ def create_current_database_window():
     current_database_window = tk.Toplevel()
     current_database_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
     current_database_window.geometry("800x500")
-    #select_database_window.iconbitmap('src/icons/database.ico')
     current_database_window.resizable(False, False)
     current_database_window.focus_force()
     current_database_window.grab_set()
@@ -286,13 +273,9 @@ def create_current_database_window():
     else:    
         db_tables_list = tk.Label(current_db_frame, text="Tabelas existentes: ")
         db_tables_list.pack()
-        print("MOSTRAR TABELAS EXISTENTES")
-        print(current_database.tables_list)
         for i, table in enumerate(current_database.tables_list):
-            print(table.table_name)
             table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: show_all_saved_data(k))
             table_list_button.pack(pady=10, side= tk.LEFT)
-        #ERRO AO CLICAR NA TABELA IMPORTADA POR CSV
 
 
 #APENAS TESTE DO "select livro_id, titulo from livros"
@@ -300,25 +283,33 @@ def create_current_database_window():
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
     current_database.update(query_text.get(1.0, tk.END))
+    
+    #Se create table 
+        #Cria tabela
+        # query_results = "Tabela criada"
 
-    column_lengths = len(query_results[0])
-    result_table = np.zeros((len(query_results), column_lengths), dtype=object)
-    print("linhas: " + str(len(query_results)))
-    print("colunas: " + str(column_lengths))
+    #Se insert
+        #Insere dados
+        # query_results = "Dados inseridos"    
 
-    #Save result on table
-    for i in range(result_table.shape[0]):
-        for j in range(result_table.shape[1]):
-            result_table[i, j] = str(query_results[i][j])
+    #Se update
+        #atualiza dados
+        # query_results = "Dados atualizados"
 
-    '''query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
+    #Se delete
+        #Apaga tabela
+        # query_results = "Tabela deletada"    
+
+    #Colocar o select em uma função separada(??)
+    #Se select
+        # query_results é zerado e recebe apenas os resultados da requisição 
+        # query_results = Dados pra mostrar na tabela de resultados
+        # Executa comandos para preencher result_table
+     
+    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
     query_columns = current_database.get_query_columns()
     #current_database.execute_query(query_text.get(1.0, tk.END))
-    print("QUERY \n")
-    print(query_text.get(1.0, tk.END))
-    print("RESULTS \n")
-    print(query_results)
-    print()
+
     #result_strings = [item for item in query_results]
     #lines (total of registers) x columns (table fields)
     column_lengths = len(query_results[0])
@@ -332,7 +323,7 @@ def execute_query_function():
             result_table[i, j] = str(query_results[i][j])
 
     
-    print(result_table)'''
+    print(result_table)
 
     close_execute_query_window()
     create_query_results_window()
@@ -343,7 +334,6 @@ def create_query_results_window():
     query_results_window = tk.Toplevel()
     query_results_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
     query_results_window.geometry("1400x800")
-    #select_database_window.iconbitmap('src/icons/database.ico')
     query_results_window.resizable(False, False)
     query_results_window.focus_force()
     query_results_window.grab_set()
@@ -382,7 +372,6 @@ def search_csv_file():
     global file_path
     file_path = filedialog.askopenfilename(title="Selecionar arquivo CSV", filetypes=[("Arquivos CSV", "*.csv")])
     if file_path:
-        print(f"Arquivo CSV selecionado: {file_path}")
         csv_frame = tk.Frame(csv_data_frame, pady=10)
         csv_frame.pack()
         csv_label = tk.Label(csv_frame, text="Caminho do arquivo: " + file_path)
@@ -396,7 +385,6 @@ def import_from_csv():
     import_csv_window = tk.Toplevel()
     import_csv_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
     import_csv_window.geometry("800x500")
-    #select_database_window.iconbitmap('src/icons/database.ico')
     import_csv_window.resizable(False, False)
     import_csv_window.focus_force()
     import_csv_window.grab_set()

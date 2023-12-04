@@ -7,9 +7,7 @@ import os
 class ManjaSQL:
 
     def __init__(self, last_id: int) -> None:
-        #self.database_name_list = []
         self.database_list: List[DataBase] = [] 
-        #lista do tipo database tbm
         self.new_database_name = ""
         self.id = last_id
         #save last id data on txt or json for backup
@@ -28,7 +26,7 @@ class ManjaSQL:
         #Create database dir
         current_dir = os.getcwd()
         path_new_database = os.path.join(current_dir, db.db_name)
-        
+        print(f'save database data diretorio atual: {os.getcwd()}')
         if os.path.exists(path_new_database) and os.path.isdir(path_new_database):
             os.chdir(path_new_database)
             path_new_database_txt = os.path.join(path_new_database, (db.db_name + ".txt"))
@@ -62,16 +60,12 @@ class ManjaSQL:
             return "Conectado com sucesso!"
 
         except mysql.connector.Error as e:
-            # Se ocorrer um erro, imprima a mensagem de erro
             return ("Erro de MySQL: " + str(e))
         except Exception as e:
-            # Se ocorrer outro tipo de erro, imprima a mensagem de erro
             return ("Erro: " + str(e))
             
    
     def send_connection_to_database(self, db: DataBase):
-        #db.cursor = self.connection.cursor()
-        #self.connection.commit()  # Adicione essa linha se necessário
         self.connection.close()  # Feche a conexão após a execução        
         return db.get_data_from_connected_database()
 
@@ -95,9 +89,9 @@ class ManjaSQL:
                 for line in file: 
                     database_data.append(line.strip())
                 
-            print(database_data)
             new_database = self.create_database(database_data[0], database_data[1], database_data[2], database_data[3]) 
             os.chdir(path_database)
+            print(f'Diretório atual load saved databases: {os.getcwd()}')
             saved_tables = os.listdir()
             if saved_tables:
                 new_database.load_saved_tables(saved_tables, path_database)
@@ -109,14 +103,13 @@ class ManjaSQL:
 
         # Define o caminho para o diretório "ManjaSQL/saved_data"
         path_saved_data = os.path.join(current_dir, '..', 'saved_data')
-
         # Verifica se o diretório "ManjaSQL/saved_data" existe
         if os.path.exists(path_saved_data) and os.path.isdir(path_saved_data):
             # Muda para o diretório "ManjaSQL/saved_data"
             os.chdir(path_saved_data)
 
             # Agora o diretório de trabalho é "ManjaSQL/saved_data"
-            print(f'Diretório atual: {os.getcwd()}')
+            print(f'Diretório atual load saved data: {os.getcwd()}')
 
             # Lista os arquivos no diretório
             saved_databases = os.listdir()
@@ -127,17 +120,6 @@ class ManjaSQL:
 
         else:
             os.mkdir(path_saved_data)
+            os.chdir(path_saved_data)
+            print(f'Diretório atual load saved data: {os.getcwd()}')
 
-    def find_next_word(self, query:str, searched_word: str):
-        query_words = query.split()
-        
-        for i, word in enumerate(query_words):
-            if searched_word.upper() == word:
-                next_word = query_words[i + 1] if i + 1 < len(query_words) else None
-                print(f"Encontrou '{searched_word}' na palavra '{word}'. Próxima palavra: {next_word}")
-                return next_word
-        return "" #tem como retornar falso?
-    
-    #Retirar a ultima palavra buscada da query e retornar a query reduzida
-    def reduzir_query():
-        pass
