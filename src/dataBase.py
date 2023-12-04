@@ -171,13 +171,16 @@ class DataBase:
         for i in len(comparison):
             field_name.append(comparison.split('=')[0].strip())
             value.append(comparison.split('=')[1].strip())
+
+        print(field_name)
+        print(value)
         
         for field in table.fields_list:
             if field == field:
                 pass
 
     def update(self, query: str):
-        
+        query = query.upper()
         # Sets the split query to be readable
         split_query = query.split()
         
@@ -187,7 +190,39 @@ class DataBase:
             split_text = re.split(pattern, text)
             result.extend(filter(None, split_text))
         split_query = result
+
+        result = []
+        for word in split_query:
+            result.append(word.replace(",", ""))
+        split_query = result
+
+        merged_strings = []
         
+        merging = False
+        for i in range(len(split_query)):
+
+            if merging:
+                merged_strings[-1] += " " + split_query[i]
+            else:
+                merged_strings.append(split_query[i])
+
+
+            if split_query[i].startswith("'") and not split_query[i].endswith("'"):
+                merging = True
+
+            elif split_query[i].endswith("'") and not split_query[i].startswith("'"):
+                merging = False
+
+            elif split_query[i].endswith("'") and split_query[i].startswith("'"):
+                merging = False
+
+            print(split_query[i])
+            print(split_query[i].endswith("'"))
+            
+
+        print(merged_strings)
+        print(split_query)
+
         # Table name to be checked later
         table_name = split_query[split_query.index("UPDATE") + 1]
         
@@ -220,11 +255,10 @@ class DataBase:
         condition_joiner = ""
         if len(conditions) >= 2:
             condition_joiner = split_query[where_index + 4]
-        
+        print(conditions)
         
         # Update the tables
         for table in self.tables_list:
-            print(i.table_name)
             if table.table_name == table_name:
                 for field in table.fields_list:
                     for k in range(len(field_name)):
@@ -258,4 +292,4 @@ class DataBase:
     
 if __name__ == "__main__":
     db = DataBase(1, "teste", "user", "password", "localhost")
-    db.execute_query("update customers set ContactName = 'Alfred', city= 'Frankfurt' where customerID = 1 and bila = bilo")
+    db.execute_query("update customers set ContactName = 'Alfred something', city= 'Frankfurt' where customerID = 1 and bila = 'bilo bilo'")

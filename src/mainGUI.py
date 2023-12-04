@@ -295,7 +295,8 @@ def create_current_database_window():
 #Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
-    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
+    current_database.update(query_text.get(1.0, tk.END))
+    '''query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
     query_columns = current_database.get_query_columns()
     #current_database.execute_query(query_text.get(1.0, tk.END))
     print("QUERY \n")
@@ -319,7 +320,7 @@ def execute_query_function():
     print(result_table)
 
     close_execute_query_window()
-    create_query_results_window()
+    create_query_results_window()'''
 
 def create_query_results_window():
     global query_results_window, query_columns, result_table
