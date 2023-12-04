@@ -52,13 +52,15 @@ class Table:
 
     #Same length of indexes and data
     def insert_data(self, indexes: List, data: List):
+        upper_indexes = [word.upper() for word in indexes]
+        
         data_current_dict = {}
         if len(indexes) == len(data):
-            print(data)
+            #print(data)
             for i, index in enumerate(indexes):
-                print(index)
-                print(i)
-                data_current_dict[index] = data[index]
+                #print(index)
+                #print(i)
+                data_current_dict[upper_indexes[i]] = data[index]
             self.data_dict_list.append(data_current_dict)
         else:
             print("Não foi possível inserir os dados")        
@@ -90,7 +92,7 @@ class Table:
         for i, word in enumerate(query_words):
             if searched_word.upper() == word:
                 next_word = query_words[i + 1] if i + 1 < len(query_words) else None
-                print(f"Encontrou '{searched_word}' na palavra '{word}'. Próxima palavra: {next_word}")
+                #print(f"Encontrou '{searched_word}' na palavra '{word}'. Próxima palavra: {next_word}")
                 return next_word
         return ""      
 
@@ -147,6 +149,23 @@ class Table:
                 self.tables_list[i].select_data(query)
                 break
 
+    def perform_operation(self, value1, operator, value2):
+        if operator == '+':
+            return value1 + value2
+        elif operator == '-':
+            return value1 - value2
+        elif operator == '>':
+            return value1 > value2
+        elif operator == '<':
+            return value1 < value2
+        elif operator == '=':
+            return value1 == value2
+        elif operator.upper() == 'AND':
+            return value1 and value2
+        elif operator.upper() == 'OR':
+            return value1 or value2
+        else:
+            raise ValueError("Invalid operator")
 
     def recognize_operator(self, string_operator):
         operators = {

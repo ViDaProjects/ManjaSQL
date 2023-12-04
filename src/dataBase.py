@@ -61,7 +61,7 @@ class DataBase:
         current_table = self.create_table(table_name)
 
         #Read csv file
-        print(csv_path)
+        #print(csv_path)
         dataframe = pd.read_csv(csv_path)
 
         #get name and data type from columns
@@ -71,10 +71,10 @@ class DataBase:
         #create current table fields
         current_table.import_fields_from_csv(fields)
 
-        print(dataframe.to_dict('records'))
+        #print(dataframe.to_dict('records'))
         #Populate current table
         for data in dataframe.to_dict('records'):
-            print(data)
+            #print(data)
             current_table.insert_data(columns, data)
 
  
@@ -158,13 +158,13 @@ class DataBase:
         table_names = self.get_table_names_from_connection()
 
         for table_name in table_names:
-            print(str(table_name))
-            print()
+            #print(str(table_name))
+            #print()
             table = self.create_table(str(table_name))
             self.create_table_fields_from_connection(table)
             self.populate_table_data(table)
-            print()
-            print("show table at create table instances")
+            #print()
+            #print("show table at create table instances")
 
     def get_data_from_connected_database(self):
         message = self.connect_to_database()
@@ -176,11 +176,11 @@ class DataBase:
     def populate_table_data(self, table: Table):
         self.cursor.execute(f"SELECT * FROM " + table.table_name)
         all_table_data = self.cursor.fetchall() 
-        print("dentro do populate")
+        #print("dentro do populate")
         for data in all_table_data:
             indexes = list(field.field_name for field in  table.fields_list)
-            print(data)
-            print()
+            #print(data)
+            #print()
             table.insert_data(indexes, data)
 
     def select(self, query: str):
@@ -190,30 +190,17 @@ class DataBase:
                 self.tables_list[i].select_data(query)
                 break
 
-    def condition_check(self, comparison: list, main_comparator: str, table: Table):
-        
-        field_name = []
-        value = []
-        for i in range(len(comparison)):
-            field_name.append(comparison[0].split('=')[0].strip())
-            value.append(comparison[0].split('=')[1].strip())
-
-        #print(field_name)
-        #print(value)
-        
+    def condition_check(self, comparison: List[str], index: int, table: Table):
+        # Passar uma lista subquerry com o que eu preciso
         evaluation = []
+        evaluation.append(table.perform_operation(str(table.data_dict_list[index].get(comparison[0])).upper(), comparison[1], comparison[2]))
+        if len(comparison) <= 3:
+            return evaluation[0]
+        evaluation.append(table.perform_operation(str(table.data_dict_list[index].get(comparison[4])).upper(), comparison[5], comparison[6]))
 
-        for field in field_name:
-            for table_value in table.data_list[field]:
-                print(table_value)
-            #for table_field in table.fields_list:
-            #    if table_field.field_name.upper() == field:
-            #        print(table_field.field_name)
-                    # Colocar a string de comparação
-        if main_comparator:
-            print(table.recognize_operator(evaluation[0] + main_comparator + evaluation[1]))
+        return table.perform_operation(evaluation[0], comparison[3], evaluation[1])
 
-    def update(self, query: str):
+    def query_splitter(self, query: str) -> str:
         query = query.upper()
         # Sets the split query to be readable
         split_query = query.split()
@@ -251,8 +238,14 @@ class DataBase:
             elif split_query[i].endswith("'") and split_query[i].startswith("'"):
                 merging = False
 
-        split_query = merged_strings
-
+        split_query = []
+        for words in merged_strings:
+            split_query.append(words.strip("'"))
+        return split_query
+    
+    def update(self, query: str):
+        
+        split_query = self.query_splitter(query)
         # Table name to be checked later
         table_name = split_query[split_query.index("UPDATE") + 1]
         
@@ -273,191 +266,50 @@ class DataBase:
         conditions = []
         
         if where_index != len(split_query):
-            i = 1
-            while where_index + i < len(split_query):
+            conditions = split_query[split_query.index("WHERE") + 1:]
 
-                if where_index + i <= len(split_query):
-                    condition = ''.join(split_query[where_index + i:where_index + i + 3])
-                    
-                    conditions.append(condition)
-                i += 4
-        
-        condition_joiner = ""
-        if len(conditions) >= 2:
-            condition_joiner = split_query[where_index + 4]
-        
-        print(conditions)
         
         # Update the tables
         for table in self.tables_list:
-            print(table.table_name.upper(), table_name)
+            # If this is the correct table
             if table.table_name.upper() == table_name:
                 for i, data in enumerate(table.data_dict_list):
-                    if condition:
-                        data[field_name[0]]
-                '''for field in table.fields_list:
-                    for k in range(len(field_name)):
-                        print(field.field_name.upper(), field_name[k])
-                        if field.field_name.upper() == field_name[k]:
-                            if self.condition_check(conditions, condition_joiner, table):
-                                field.value = new_values[k]'''
-                                
+                    # Read all fields checking if the condition is met
+                    if self.condition_check(conditions, i, table):
+                        # Update values
+                        for x in range(len(field_name)):
+                            data[field_name[x]] = new_values[x]
 
     def delete(self, query: str):
-        query = query.upper()
-        # Sets the split query to be readable
-        split_query = query.split()
-        
-        pattern = r'(\s*=\s*)'
-        result = []
-        for text in split_query:
-            split_text = re.split(pattern, text)
-            result.extend(filter(None, split_text))
-        split_query = result
-
-        result = []
-        for word in split_query:
-            word = word.replace (";", "")
-            result.append(word.replace(",", ""))
-        split_query = result
-
-        merged_strings = []
-        
-        merging = False
-        for i in range(len(split_query)):
-
-            if merging:
-                merged_strings[-1] += " " + split_query[i]
-            else:
-                merged_strings.append(split_query[i])
-
-
-            if split_query[i].startswith("'") and not split_query[i].endswith("'"):
-                merging = True
-
-            elif split_query[i].endswith("'") and not split_query[i].startswith("'"):
-                merging = False
-
-            elif split_query[i].endswith("'") and split_query[i].startswith("'"):
-                merging = False
-
-        split_query = merged_strings
-
-        # Table name to be checked later
+        split_query = self.query_splitter(query)
         table_name = split_query[split_query.index("FROM") + 1]
-        
+        print(table_name)
         # Extracts what are the fields and the values that will be attributed to them
         where_index = len(split_query)
-        if "WHERE" not in split_query:
-            for table in self.tables_list:
-                if table.table_name == table_name:
-                    table.data_list.clear()
-                    return
-                
-        where_index = split_query.index("WHERE")
-                
+        if "WHERE" in split_query:
+            where_index = split_query.index("WHERE")
+
         conditions = []
         
         if where_index != len(split_query):
-            i = 1
-            while where_index + i < len(split_query):
-
-                if where_index + i <= len(split_query):
-                    condition = ''.join(split_query[where_index + i:where_index + i + 3])
-                    
-                    conditions.append(condition)
-                i += 4
-        
-        condition_joiner = ""
-        if len(conditions) >= 2:
-            condition_joiner = split_query[where_index + 4]
-
+            conditions = split_query[split_query.index("WHERE") + 1:]
         print(conditions)
-        where_index = split_query.index("WHERE")
+
         for table in self.tables_list:
-            for data in table.data_list:
-                pass
-                # If conditions match, delete the information
+            # If this is the correct table
+            if table.table_name.upper() == table_name:
+                for i, data in enumerate(table.data_dict_list):
+                    # Read all fields checking if the condition is met
+                    if self.condition_check(conditions, i, table):
+                        #print(table.data_dict_list)
+                        del table.data_dict_list[i]
+                        #print(table.data_dict_list)
 
                 
 
     def insert(self, query: str):
-        query = query.upper()
-        # Sets the split query to be readable
-        split_query = query.split()
-        
-        pattern = r'(\s*=\s*)'
-        result = []
-        for text in split_query:
-            split_text = re.split(pattern, text)
-            result.extend(filter(None, split_text))
-        split_query = result
-
-        result = []
-        for word in split_query:
-            word = word.replace (";", "")
-            result.append(word.replace(",", ""))
-        split_query = result
-
-        merged_strings = []
-        
-        merging = False
-        for i in range(len(split_query)):
-
-            if merging:
-                merged_strings[-1] += " " + split_query[i]
-            else:
-                merged_strings.append(split_query[i])
-
-
-            if split_query[i].startswith("'") and not split_query[i].endswith("'"):
-                merging = True
-
-            elif split_query[i].endswith("'") and not split_query[i].startswith("'"):
-                merging = False
-
-            elif split_query[i].endswith("'") and split_query[i].startswith("'"):
-                merging = False
-
-        split_query = merged_strings
-
-        # Table name to be checked later
-        table_name = split_query[split_query.index("INTO") + 1]
-        
-        # Extracts what are the fields and the values that will be attributed to them
-        values_index = len(split_query)
-        if "VALUES" in split_query:
-            values_index = split_query.index("VALUES")
-        
-        merged_strings = []
-        
-        merging = False
-        for i in range(len(split_query)):
-
-            if merging:
-                merged_strings[-1] += " " + split_query[i]
-            else:
-                merged_strings.append(split_query[i])
-
-
-            if split_query[i].startswith("(") and not split_query[i].endswith(")"):
-                merging = True
-
-            elif split_query[i].endswith(")") and not split_query[i].startswith("("):
-                merging = False
-
-            elif split_query[i].endswith(")") and split_query[i].startswith("("):
-                merging = False
-
-        split_query = merged_strings
-        split_query[-1] = split_query[-1][1:-1]
-        
-        for table in self.tables_list:
-            if table.table_name == table_name:
-                # Adicionar os dados presentes em split_query[-1]
-                pass
-        
-
+        pass
+    
     def save_data():
         pass
 
@@ -478,14 +330,14 @@ class DataBase:
     #TA FUNCIONANDO SO COM UMA PALAVRA
     def find_next_word(self, query:str, searched_word: str) -> str:  # Update the function signature to specify the return type
         query_words = query.split()
-        print(query_words)
+        #print(query_words)
         for i, word in enumerate(query_words):
             if searched_word.upper() == word:
                 next_word = query_words[i + 1] if i + 1 < len(query_words) else ""
-                print(f"Encontrou '{searched_word}' na palavra '{word}'. Próxima palavra: {next_word}")
+                #print(f"Encontrou '{searched_word}' na palavra '{word}'. Próxima palavra: {next_word}")
                 return next_word
         return ""  # Ensure the function always returns a value of type "str"
     
 if __name__ == "__main__":
     db = DataBase(1, "teste", "user", "password", "localhost")
-    db.execute_query("INSERT INTO table_name VALUES (value1, value2, value3, ...); ")
+    db.execute_query("UPDATE Customers SET ContactName = 'Alfred Schmidt', City= 'Frankfurt' WHERE CustomerID = 1 and customerID =2;")

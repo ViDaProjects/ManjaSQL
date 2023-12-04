@@ -31,7 +31,7 @@ def send_create_db():
     create_label = tk.Label(db_data_frame, text="Banco de dados criado!")
     create_label.pack()    
     #create_database_window.destroy()
-    print(db.db_name for db in manja.database_list)
+    #print(db.db_name for db in manja.database_list)
 
 def send_connect_db():
     global current_db
@@ -153,7 +153,7 @@ def select_database():
         db_information = tk.Label(db_select_frame, text="Bancos de dados existentes: ")
         db_information.pack()
         for i, database in enumerate(manja.database_list):
-            print(database.db_name)
+            #print(database.db_name)
             existent_database_button = tk.Button(db_select_frame, text=database.db_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: login_database(k))
             existent_database_button.pack(pady=10)
 
@@ -235,22 +235,22 @@ def show_all_saved_data(k: int):
     current_table = current_database.tables_list[k]
     current_database_window.destroy()
     query_columns = list(field.field_name for field in current_table.fields_list)
-    print(query_columns)
+    #print(query_columns)
     
-    print("show all data")
-    print(list(data for data in current_table.data_dict_list))
+    #print("show all data")
+    #print(list(data for data in current_table.data_dict_list))
     columns_length = len(query_columns)
     lines_length = len(current_table.data_dict_list)
     result_table = np.zeros((lines_length, columns_length), dtype=object)
-    print("linhas: " + str(lines_length))
-    print("colunas: " + str(columns_length))
+    #print("linhas: " + str(lines_length))
+    #print("colunas: " + str(columns_length))
 
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
-            print(i)
-            print(query_columns[j])
-            print(current_table.data_dict_list)
+            #print(i)
+            #print(query_columns[j])
+            #print(current_table.data_dict_list)
             #ERRO AO MOSTRAR DADOS IMPORTADOS DE CSV
             result_table[i, j] = current_table.data_dict_list[i][query_columns[j]]
     
@@ -286,10 +286,10 @@ def create_current_database_window():
     else:    
         db_tables_list = tk.Label(current_db_frame, text="Tabelas existentes: ")
         db_tables_list.pack()
-        print("MOSTRAR TABELAS EXISTENTES")
-        print(current_database.tables_list)
+        #print("MOSTRAR TABELAS EXISTENTES")
+        #print(current_database.tables_list)
         for i, table in enumerate(current_database.tables_list):
-            print(table.table_name)
+            #print(table.table_name)
             table_list_button = tk.Button(current_db_frame, text=table.table_name, borderwidth=5, padx=15, pady=15, command= lambda k=i: show_all_saved_data(k))
             table_list_button.pack(pady=10, side= tk.LEFT)
         #ERRO AO CLICAR NA TABELA IMPORTADA POR CSV
@@ -299,26 +299,26 @@ def create_current_database_window():
 #Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
-    current_database.update(query_text.get(1.0, tk.END))
+    current_database.delete(query_text.get(1.0, tk.END))
 
     column_lengths = len(query_results[0])
     result_table = np.zeros((len(query_results), column_lengths), dtype=object)
-    print("linhas: " + str(len(query_results)))
-    print("colunas: " + str(column_lengths))
+    #print("linhas: " + str(len(query_results)))
+    #print("colunas: " + str(column_lengths))
 
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
             result_table[i, j] = str(query_results[i][j])
 
-    '''query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
+    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
     query_columns = current_database.get_query_columns()
     #current_database.execute_query(query_text.get(1.0, tk.END))
-    print("QUERY \n")
-    print(query_text.get(1.0, tk.END))
-    print("RESULTS \n")
-    print(query_results)
-    print()
+    #print("QUERY \n")
+    #print(query_text.get(1.0, tk.END))
+    #print("RESULTS \n")
+    #print(query_results)
+    #print()
     #result_strings = [item for item in query_results]
     #lines (total of registers) x columns (table fields)
     column_lengths = len(query_results[0])
@@ -332,7 +332,7 @@ def execute_query_function():
             result_table[i, j] = str(query_results[i][j])
 
     
-    print(result_table)'''
+    #print(result_table)
 
     close_execute_query_window()
     create_query_results_window()
@@ -382,7 +382,7 @@ def search_csv_file():
     global file_path
     file_path = filedialog.askopenfilename(title="Selecionar arquivo CSV", filetypes=[("Arquivos CSV", "*.csv")])
     if file_path:
-        print(f"Arquivo CSV selecionado: {file_path}")
+        #print(f"Arquivo CSV selecionado: {file_path}")
         csv_frame = tk.Frame(csv_data_frame, pady=10)
         csv_frame.pack()
         csv_label = tk.Label(csv_frame, text="Caminho do arquivo: " + file_path)
