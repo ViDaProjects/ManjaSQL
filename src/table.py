@@ -30,10 +30,7 @@ class Table:
     
     def save_create_field_on_json(self, field: Field, db_name: str):
         field_dict = {}
-        current_path = os.getcwd()
-        db_path = os.path.join(current_path, db_name) 
         json_path = os.path.join(self.table_default_path, self.table_name + ".json")
-        print(json_path)
         existent_data = self.get_existent_table_json(db_name)
 
         field_dict['FIELD_ID'] = field.field_id
@@ -43,17 +40,10 @@ class Table:
         field_dict['KEY TYPE'] = ""
         field_dict['ORIGIN TABLE'] = ""
         field_dict['FOREIGIN CONSTRAINTS'] = ""
-        print("tamanho")
-        print(len(self.fields_list))
-        print("PASSOU POR AQUIII "+ field.field_name)
-        print(existent_data)
         existent_data['COLUMNS'][field.field_name] = field_dict
-        #existent_data['COLUMNS'].append(field_dict)
 
-        #Fazer o columns como um dicionário também e uma chave para acessar (field_name)
         json_string = json.dumps(existent_data, default=self.bytes_converter, indent=2)
 
-        # Escrevendo a string JSON no arquivo .json
         with open(json_path, 'w') as json_file:
             json_file.write(json_string)
 
@@ -61,13 +51,7 @@ class Table:
         self.fields_list = fields
         
     def get_existent_table_json(self, db_name: str):
-        current_path = os.getcwd()
-        print(current_path)
-        db_path = os.path.join(current_path, db_name) 
-        print(db_path)
         json_path = os.path.join(self.table_default_path, self.table_name + ".json")
-        print(json_path)
-        print(f'Diretório atual get existent data on json: {os.getcwd()}')
 
         existent_data = {}
         if os.path.exists(json_path):
@@ -134,26 +118,18 @@ class Table:
             print("Não foi possível inserir os dados")        
  
     def save_table_data_on_json(self, data: List, db_name: str):
-        current_path = os.getcwd()
-        db_path = os.path.join(current_path, db_name) 
         json_path = os.path.join(self.table_default_path, self.table_name + ".json")        
-        
         existent_data = self.get_existent_table_json(db_name)
-        index = str(len(self.data_dict_list))
-        print(self.data_dict_list)
         existent_data['DATA'] = self.data_dict_list
 
         json_string = json.dumps(existent_data, default=self.bytes_converter, indent=2)
 
-        # Escrevendo a string JSON no arquivo .json
         with open(json_path, 'w') as json_file:
             json_file.write(json_string)
-        #with open(json_path, 'w') as json_file:
-        #    json.dump(existent_data, json_file) 
 
     def bytes_converter(self, obj):
         if isinstance(obj, bytes):
-            return obj.decode('utf-8')  # Altere a codificação se necessário
+            return obj.decode('utf-8')  
         if isinstance(obj, Decimal):
             return float(obj) 
         raise TypeError(f"Objeto do tipo {type(obj)} não é serializável.")
@@ -242,14 +218,3 @@ class Table:
 
         return operators.get(string_operator, None)                
 
-# Exemplo de uso
-#operador_string = ">"
-
-# Mapear a string do operador para uma função
-#operador = mapear_operador(operador_string)
-
-'''if operador:
-    resultado = operador(5, 3)  # Substitua 5 e 3 pelos valores que deseja comparar
-    print(f"O resultado da comparação é: {resultado}")
-else:
-    print("Operador não reconhecido.")'''

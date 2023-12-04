@@ -40,17 +40,13 @@ def send_connect_db():
 
     connect_label = tk.Label(db_data_frame, text=message)
     connect_label.pack()         
-    #MOSTRA UM ERRO NO TERMINAL SE O BD INFORMADO NÃO EXISTE
-    #conectar ou criar conexão
-    #ou vê se existe a conexão e depois cria o db
-    
+   
 
 def create_database_window_config(title: str): 
     global create_database_window, db_name_entry, db_host_entry, db_user_entry, db_password_entry, db_data_frame
     create_database_window = tk.Toplevel()
     create_database_window.title("ManjaSQL - " + title)
     create_database_window.geometry("800x500")
-    #create_database_window.iconbitmap('src/icons/database.ico')
     create_database_window.resizable(False, False)
     create_database_window.focus_force()
     create_database_window.grab_set()
@@ -119,9 +115,6 @@ def close_query_results_window():
     query_results_window.destroy()  
     create_current_database_window()  
 
-#def close_connect_to_database_window():
-#    connect_to_database_window.destroy() 
-
 def create_database():  
     create_database_window_config("Criar Banco de Dados")
     db_create_button = tk.Button(db_data_frame, text="Criar", command=send_create_db)
@@ -133,7 +126,6 @@ def select_database():
     select_database_window = tk.Toplevel()
     select_database_window.title("ManjaSQL - Selecionar Banco de Dados")
     select_database_window.geometry("800x500")
-    #select_database_window.iconbitmap('src/icons/database.ico')
     select_database_window.resizable(False, False)
     select_database_window.focus_force()
     select_database_window.grab_set()
@@ -142,7 +134,6 @@ def select_database():
 
     db_select_frame = tk.Frame(select_database_window, pady=20)
     db_select_frame.pack()
-    #fazer um for para criar um novo botão a cada database cadastrado
 
     if manja.database_list == []:
         db_information = tk.Label(db_select_frame, text="Ainda não possui Bancos de Dados")
@@ -171,7 +162,6 @@ def login_database(i: int):
     login_database_window = tk.Toplevel()
     login_database_window.title("ManjaSQL - Login - Banco de Dados: " + current_database.db_name)
     login_database_window.geometry("800x500")
-    #select_database_window.iconbitmap('src/icons/database.ico')
     login_database_window.resizable(False, False)
     login_database_window.focus_force()
     login_database_window.grab_set()
@@ -209,7 +199,6 @@ def create_query_window():
     execute_query_window = tk.Toplevel()
     execute_query_window.title("ManjaSQL - Banco de Dados: " + current_database.db_name)
     execute_query_window.geometry("800x500")
-    #select_database_window.iconbitmap('src/icons/database.ico')
     execute_query_window.resizable(False, False)
     execute_query_window.focus_force()
     execute_query_window.grab_set()
@@ -219,7 +208,6 @@ def create_query_window():
     query_db_frame = tk.Frame(execute_query_window, pady=20)
     query_db_frame.pack()
 
-    #Text para colocar a query sql
     query_text = tk.Text(query_db_frame, width=60, height=20)
     query_text.pack(pady=20)
     execute_query_button = tk.Button(query_db_frame, text="Executar query", borderwidth=5, padx=15, pady=15, command= execute_query_function)
@@ -282,6 +270,11 @@ def create_current_database_window():
 #Chamar função que traduz e reconhece comandos aqui
 def execute_query_function():
     global query_text, query_results, query_columns, result_table
+    
+    #query translate
+    query = query_text.get(1.0, tk.END)
+    current_database.translator(query)
+    
     current_database.update(query_text.get(1.0, tk.END))
     
     #Se create table 
@@ -299,32 +292,40 @@ def execute_query_function():
     #Se delete
         #Apaga tabela
         # query_results = "Tabela deletada"    
-
+    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
     #Colocar o select em uma função separada(??)
     #Se select
+    show_select_results(query_results)
         # query_results é zerado e recebe apenas os resultados da requisição 
         # query_results = Dados pra mostrar na tabela de resultados
         # Executa comandos para preencher result_table
      
-    query_results = current_database.execute_query_on_connection(query_text.get(1.0, tk.END))
-    query_columns = current_database.get_query_columns()
+  
     #current_database.execute_query(query_text.get(1.0, tk.END))
 
     #result_strings = [item for item in query_results]
     #lines (total of registers) x columns (table fields)
-    column_lengths = len(query_results[0])
-    result_table = np.zeros((len(query_results), column_lengths), dtype=object)
-    print("linhas: " + str(len(query_results)))
-    print("colunas: " + str(column_lengths))
+
+    
+    print(result_table)
+
+    
+    
+
+def show_select_results(query_results: list):
+    
+    #Columns and lines quantities in this select
+    columns_len = len(query_results[0])
+    lines_len = len(query_results)
+    result_table = np.zeros((lines_len, columns_len), dtype=object)
+    print("linhas: " + str(lines_len))
+    print("colunas: " + str(columns_len))
 
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
             result_table[i, j] = str(query_results[i][j])
-
     
-    print(result_table)
-
     close_execute_query_window()
     create_query_results_window()
 
@@ -416,9 +417,6 @@ choose_database_button.pack(pady=10)
 #Connect to existent database
 connect_to_database_button = tk.Button(main_window, text="Conectar a um banco de dados", borderwidth=5, padx=15, pady=15, command=connect_database)
 connect_to_database_button.pack(pady=10)
-
-
-
 
 #Window loop
 main_window.mainloop()

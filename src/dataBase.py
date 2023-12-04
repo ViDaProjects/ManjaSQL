@@ -8,13 +8,13 @@ import re
 import os
 import json
 
-#atributo privado: __nome__
 class DataBase:
 
     def __init__(self, id: int, name: str, host: str, user: str, password: str) -> None:
         self.tables_list: List[Table] = [] #class Table
         self.new_table_name = "" #create table
         self.current_table_id = 0 #create table
+        self.db_default_path = "" #manage json
         #database data
         self.db_id = id
         self.db_name = name
@@ -24,16 +24,11 @@ class DataBase:
         self.host = host
         self.connection = None
         self.cursor = None
-        self.db_default_path = ""
-
 
     def create_table(self, name: str):
         id = "table_" + str(self.current_table_id) + "_db_" + str(self.db_id)
         self.new_table_name = name
         new_table = Table(id, self.new_table_name)
-        table_path = os.path.join(self.db_default_path, self.new_table_name) 
-        print("table path")
-        print(self.db_default_path)
         new_table.table_default_path = self.db_default_path
         self.current_table_id += 1
         self.tables_list.append(new_table)
@@ -45,12 +40,7 @@ class DataBase:
         current_path = os.getcwd()
         if self.db_default_path == "":
             self.db_default_path = current_path
-        #db_path = os.path.join(current_path, self.db_name) 
-        #print("ESSE DB_PATH "+ db_path)
         json_path = os.path.join(table.table_default_path, table.table_name + ".json")
-        #os.chdir(db_path)
-        print("path da table json "+ json_path)
-        print(f'Diretório atual saving table on json: {os.getcwd()}')
 
         table_dict['TABLE_ID'] = table.table_id
         table_dict['TABLE_NAME'] = table.table_name
@@ -68,32 +58,27 @@ class DataBase:
     def load_saved_tables(self, tables_files: List, path_database: str):
         table_data = []
         field = {}
-        #FAZER APENAS SE FOR JSON
-        print(f'Diretório atual saved tables: {os.getcwd()}')
         self.db_default_path = str(os.getcwd())
+        
         for table_json in tables_files:
             if table_json.endswith(".json"):
+                #Read all table data saved on .json
                 with open(table_json, 'r') as json_file:
                     table_data = json.load(json_file)
+                
+                #Initialize on classes 
                 table_name = table_data['TABLE_NAME']
                 table = self.create_table(table_name)
-                print()
+                
                 for field_name in table_data['COLUMNS']:
                     field = table_data['COLUMNS'][field_name]
                     new_field = table.create_field(field['FIELD_NAME'], field['TYPE'], field['CONSTRAINTS'], self.db_name)
+                    
                     for key in table_data['KEY_DATA']:
                         if new_field.field_name == key['FIELD_NAME']:
                             table.define_key_type(new_field, key) 
 
-                #ARRUMAR DATA DEPOIS DE GERAR O JSON
-                
-                #Não sei como arrumar isso, penser dps
-                print()
-                print("-------------- DATAAAAA------------")
-                print()
-                print(table_data['DATA'])
                 for data in table_data['DATA']:
-                    print(data)
                     indexes = list(field.field_name for field in table.fields_list)
                     table.insert_data(indexes, data, True, self.db_name)
 
@@ -102,7 +87,6 @@ class DataBase:
         current_table = self.create_table(table_name)
 
         #Read csv file
-        print(csv_path)
         dataframe = pd.read_csv(csv_path)
 
         fields = []
@@ -113,10 +97,8 @@ class DataBase:
         #create current table fields
         current_table.import_fields_from_csv(fields)
 
-        print(dataframe.to_dict('records'))
         #Populate current table
         for data in dataframe.to_dict('records'):
-            print(data)
             current_table.insert_data(columns, data, True, self.db_name)
 
  
@@ -158,13 +140,6 @@ class DataBase:
     def execute_query_on_connection(self, query: str):
         self.cursor.execute(query)
         return self.cursor.fetchall()
-
-    #EXCLUSIVAMENTE PRA TESTE NA QUERY DE CONEXÃO, APAGAR DEPOIS
-    def get_query_columns(self):
-        return (['livro_id','titulo'])
-    
-    def create_table_by_json():
-        pass
 
     def connect_to_database(self):
         try:
