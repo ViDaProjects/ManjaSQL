@@ -7,7 +7,8 @@ class Table:
         self.table_id = table_id
         self.table_name = table_name
         self.fields_list: List[Field] = [] 
-        self.data_list = [] 
+        self.fields_list: List[Field] = [] 
+        self.data_list = []
         self.primary_key: List[Field] = [] 
         self.foreign_key : List[Field] = [] 
         self.current_field_id = 0
@@ -42,7 +43,6 @@ class Table:
 
     def insert_data(self, data: List):
         self.data_list.append(data)
-
  
     def update_data(self, query: str, where: str):
         #descobre proxima palavra depois do where
