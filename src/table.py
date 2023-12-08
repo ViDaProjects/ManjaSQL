@@ -22,7 +22,7 @@ class Table:
 
     def create_field(self, name: str, type: str, constraints: str, db_name: str):
         id = "field_" + str(self.current_field_id) + "_" + self.table_id
-        new_field = Field(id, name, type, constraints)
+        new_field = Field(id, name.upper(), type, constraints)
         self.current_field_id += 1
         self.fields_list.append(new_field)
         self.save_create_field_on_json(new_field, db_name)
@@ -105,39 +105,41 @@ class Table:
 
     #Same length of indexes and data
     def insert_data(self, indexes: List, data: List, is_csv: bool, db_name: str):
-        #upper_indexes = [word.upper() for word in indexes]
+        upper_indexes = [word.upper() for word in indexes]
         data_current_dict = {}
         if len(indexes) == len(data):
             if is_csv:
-                for index in indexes:
-                    #data_current_dict[upper_indexes[i]] = data[index]
-                    data_current_dict[index] = data[index]
+                for i, index in enumerate(indexes):
+                    data_current_dict[upper_indexes[i]] = data[index]
             else:
                 for i, index in enumerate(indexes):
-                    data_current_dict[index] = data[i]                
+                    data_current_dict[upper_indexes[i]] = data[i]                
             self.data_dict_list.append(data_current_dict)
             self.save_table_data_on_json(data_current_dict, db_name)
         else:
             print("Não foi possível inserir os dados")        
  
     def insert_data_from_existent_db(self, indexes: List, all_table_data: List, is_csv: bool, db_name: str):
-        #upper_indexes = [word.upper() for word in indexes]
+        upper_indexes = [word.upper() for word in indexes]
         data_current_dict = {}
-        
+        print(upper_indexes)
         if is_csv:
             for data in all_table_data:
-                for index in indexes:
-                    #data_current_dict[upper_indexes[i]] = data[index]
-                    data_current_dict[index] = data[index]
+                for i, index in enumerate(indexes):
+                    #data_current_dict[index] = data[index]
+                    data_current_dict[upper_indexes[i]] = data[index]
                 self.data_dict_list.append(data_current_dict)    
         else:
             for data in all_table_data:
                 for i, index in enumerate(indexes):
-                    data_current_dict[index] = data[i]                
+                    #data_current_dict[index] = data[i]
+                    data_current_dict[upper_indexes[i]] = data[i]   
+                #print(data_current_dict)             
                 self.data_dict_list.append(data_current_dict)
-
+                print(self.data_dict_list)
+        
         #Only one save for all data
-        self.save_table_data_on_json(data_current_dict, db_name)
+        self.save_table_data_on_json(self.data_dict_list, db_name)
 
 
     def save_table_data_on_json(self, data: List, db_name: str):

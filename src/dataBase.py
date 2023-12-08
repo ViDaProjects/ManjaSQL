@@ -98,7 +98,9 @@ class DataBase:
         fields = []
         #get name and data type from columns
         columns = list(dataframe.columns)
-        fields = [current_table.create_field(name, str(dataframe[name].dtype), self.db_name, "") for name in columns]
+
+        #UPPER AQUIIII
+        fields = [current_table.create_field(name.upper(), str(dataframe[name].dtype), self.db_name, "") for name in columns]
 
         #create current table fields
         current_table.import_fields_from_csv(fields)
@@ -106,7 +108,7 @@ class DataBase:
         #Populate current table
         for data in dataframe.to_dict('records'):
             #NOVO INSERT DATA 
-            current_table.insert_data(columns, data, True, self.db_name)
+            current_table.insert_data_from_existent_db(columns, data, True, self.db_name)
 
  
     #Só funciona com uma palavra
@@ -181,7 +183,9 @@ class DataBase:
     def create_table_fields_from_connection(self, table: Table):
         self.cursor.execute(f"DESCRIBE "+ table.table_name)
         #get name and data type from field
-        fields = [table.create_field(field[0], field[1], field[2], self.db_name) for field in self.cursor.fetchall()]
+
+        #UPPER AQUI
+        fields = [table.create_field(field[0].upper(), field[1], field[2], self.db_name) for field in self.cursor.fetchall()]
         return fields
 
     def create_table_instances_from_connection(self):
@@ -190,7 +194,7 @@ class DataBase:
         for table_name in table_names:
             table = self.create_table(str(table_name))
             fields = self.create_table_fields_from_connection(table)
-            self.populate_table_data(table, fields)
+            self.populate_table_data(table)
 
     def get_data_from_connected_database(self):
         message = self.connect_to_database()
@@ -199,17 +203,11 @@ class DataBase:
 
         return message
 
-    def populate_table_data(self, table: Table, fields: List):
-        #fields_names = list(field.field_name for field in fields)
-        #selected_fields = str(', '.join(fields_names))
-        #print("SELECT " + selected_fields + " FROM " + table.table_name)
+    def populate_table_data(self, table: Table):
         self.cursor.execute(f"SELECT * FROM " + table.table_name)
-        print(self.cursor)
         all_table_data = self.cursor.fetchall() 
         indexes = list(field.field_name for field in  table.fields_list)
-        #for data in all_table_data:
-        #    table.insert_data(indexes, data, False, self.db_name)
-            #USAR NOVO INSERT DATA 
+
         table.insert_data_from_existent_db(indexes, all_table_data, False, self.db_name)
 
     def select(self, query: str):
