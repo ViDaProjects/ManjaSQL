@@ -148,10 +148,16 @@ class DataBase:
     def inner_join(table_a: Table, table_b: Table, on_column: str):
         inner_join_table = []
 
-        for row_a in table_a.data_dict_list:
-            for row_b in table_b.data_dict_list:
-                if row_a[on_column] == row_b[on_column]:
-                    inner_join_table.append({row_a, row_b})  # Merge os dicionários
+        for entry_1 in table_a["data"]:
+            for entry_2 in table_b["data"]:
+                if entry_1["id"] == entry_2["id"]:
+                    merged_entry = {**entry_1, **entry_2}  # Merge dictionaries
+                    merged_data["data"].append(merged_entry)
+                    break  # Stop iterating over entries in data_2 if matched
+
+        # Convert merged data to JSON
+        merged_json = json.dumps(merged_data, indent=2)
+        return merged_json#
 
         return inner_join_table
     
