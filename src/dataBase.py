@@ -232,6 +232,7 @@ class DataBase:
         # Get table names
         table_names = []
         name = ""
+        print(split_query)
         from_index = split_query.index(key_words[2])
         selected_tables = []
         for i in range(from_index + 1, len(split_query)):
@@ -459,20 +460,20 @@ class DataBase:
        
     def translator(self, query: str):
         new_query = query.upper()
-        
-        new_query = new_query.replace("ou", "or")
-        new_query = new_query.replace("transformar", "set")
-        new_query = new_query.replace("juntar interno", "inner join")
-        new_query = new_query.replace("por", "on")
-        new_query = new_query.replace("inserir", "insert into")
-        new_query = new_query.replace("e", "and")
-        new_query = new_query.replace("organizar por", "order by")
-        new_query = new_query.replace("donde", "where")
-        new_query = new_query.replace("inserir", "insert into")
-        new_query = new_query.replace("modificar", "update")
-        new_query = new_query.replace("apagar", "delete from")
-        new_query = new_query.replace("agarrar", "select") 
-        new_query = new_query.replace("valores", "values")        
+        new_query = new_query.replace(" OU ", " OR ")
+        new_query = new_query.replace(" TRANSFORMAR ", " SET ")
+        new_query = new_query.replace(" JUNTAR INTERNO EM ", " INNER JOIN ON ")
+        new_query = new_query.replace("INSERIR ", "INSERT INTO ")
+        new_query = new_query.replace(" E", " AND ")
+        new_query = new_query.replace(" ORGANIZAR POR ", " ORDER BY ")
+        new_query = new_query.replace(" DONDE ", " WHERE ")
+        new_query = new_query.replace("INSERIR ", "INSERT INTO ")
+        new_query = new_query.replace("MODIFICAR ", "UPDATE ")
+        new_query = new_query.replace("APAGAR ", "DELETE FROM ")
+        new_query = new_query.replace("AGARRAR ", "SELECT ")
+        new_query = new_query.replace(" VALORES ", " VALUES ")
+        new_query = new_query.replace(" DE ", " FROM ")
+        new_query = new_query.replace(" DISTINTO ", " DISTINCT ")       
 
         return new_query
 

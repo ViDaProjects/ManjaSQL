@@ -270,9 +270,10 @@ def execute_query_function():
     #query translate
     query_manja = query_text.get(1.0, tk.END)
     query_sql = current_database.translator(query_manja)
-    
+    print(query_sql)
     #trocar para query_sql
     query_results = current_database.execute_query(query_sql)
+    print(query_results)
     #current_database.update(query_text.get(1.0, tk.END))
     #current_database.delete(query_text.get(1.0, tk.END))
     if query_results:
