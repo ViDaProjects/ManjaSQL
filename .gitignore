@@ -2,3 +2,4 @@
 poetry.lock
 pyproject.toml
 src/__pycache__
+saved_data/

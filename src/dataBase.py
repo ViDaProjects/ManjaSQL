@@ -40,9 +40,13 @@ class DataBase:
     def save_create_table_on_json(self, table: Table):
         table_dict = {}
         current_path = os.getcwd()
+        print(self.db_default_path)
         if self.db_default_path == "":
             self.db_default_path = current_path
         json_path = os.path.join(table.table_default_path, table.table_name + ".json")
+        
+        print("Caminho do banco de dados")
+        print(json_path)
 
         table_dict['TABLE_ID'] = table.table_id
         table_dict['TABLE_NAME'] = table.table_name
@@ -94,14 +98,17 @@ class DataBase:
         fields = []
         #get name and data type from columns
         columns = list(dataframe.columns)
-        fields = [current_table.create_field(name, str(dataframe[name].dtype), self.db_name, "") for name in columns]
+
+        #UPPER AQUIIII
+        fields = [current_table.create_field(name.upper(), str(dataframe[name].dtype), self.db_name, "") for name in columns]
 
         #create current table fields
         current_table.import_fields_from_csv(fields)
 
         #Populate current table
         for data in dataframe.to_dict('records'):
-            current_table.insert_data(columns, data, True, self.db_name)
+            #NOVO INSERT DATA 
+            current_table.insert_data_from_existent_db(columns, data, True, self.db_name)
 
  
     #Só funciona com uma palavra
@@ -176,14 +183,17 @@ class DataBase:
     def create_table_fields_from_connection(self, table: Table):
         self.cursor.execute(f"DESCRIBE "+ table.table_name)
         #get name and data type from field
-        fields = [table.create_field(field[0], field[1], field[2], self.db_name) for field in self.cursor.fetchall()]
+
+        #UPPER AQUI
+        fields = [table.create_field(field[0].upper(), field[1], field[2], self.db_name) for field in self.cursor.fetchall()]
+        return fields
 
     def create_table_instances_from_connection(self):
         table_names = self.get_table_names_from_connection()
 
         for table_name in table_names:
             table = self.create_table(str(table_name))
-            self.create_table_fields_from_connection(table)
+            fields = self.create_table_fields_from_connection(table)
             self.populate_table_data(table)
 
     def get_data_from_connected_database(self):
@@ -196,9 +206,9 @@ class DataBase:
     def populate_table_data(self, table: Table):
         self.cursor.execute(f"SELECT * FROM " + table.table_name)
         all_table_data = self.cursor.fetchall() 
-        for data in all_table_data:
-            indexes = list(field.field_name for field in  table.fields_list)
-            table.insert_data(indexes, data, False, self.db_name)
+        indexes = list(field.field_name for field in  table.fields_list)
+
+        table.insert_data_from_existent_db(indexes, all_table_data, False, self.db_name)
 
     def select(self, query: str):
         split_query = self.query_splitter(query)
