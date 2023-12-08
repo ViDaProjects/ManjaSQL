@@ -299,7 +299,7 @@ def show_select_results(query_results: list):
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
-            result_table[i, j] = (str(result) for result in query_results[i])
+            result_table[i, j] = str(query_results[i][query_columns[j]])
             #result_table[i, j] = str(query_results[i][j])
     
     close_execute_query_window()
