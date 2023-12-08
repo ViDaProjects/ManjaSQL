@@ -11,8 +11,8 @@ class ManjaSQL:
         self.new_database_name = ""
         self.id = last_id
         #save last id data on txt or json for backup
-        self.load_saved_data()
         self.saved_data_default_path = ""
+        self.load_saved_data()
 
     def create_database(self, name: str, host: str, user: str, password: str):
         self.new_database_name = name
@@ -26,6 +26,8 @@ class ManjaSQL:
         current_dir = self.saved_data_default_path
         path_new_database = os.path.join(current_dir, db.db_name)
         db.db_default_path = path_new_database
+        print("Path para conectar com novo banco")
+        print(path_new_database)
 
         if os.path.exists(path_new_database) and os.path.isdir(path_new_database):
             os.chdir(path_new_database)
@@ -89,7 +91,7 @@ class ManjaSQL:
                     database_data.append(line.strip())
                 
             new_database = self.create_database(database_data[0], database_data[1], database_data[2], database_data[3]) 
-            os.chdir(path_database)
+            #os.chdir(path_database)
             saved_tables = os.listdir()
             if saved_tables:
                 new_database.load_saved_tables(saved_tables, path_database)
@@ -105,7 +107,8 @@ class ManjaSQL:
             #Changes to dir "ManjaSQL/saved_data"
             os.chdir(path_saved_data)
             self.saved_data_default_path = str(os.getcwd())
-
+            print("path no load manja sql")
+            print(self.saved_data_default_path)
             #Files on this dir
             saved_databases = os.listdir()
             if saved_databases:

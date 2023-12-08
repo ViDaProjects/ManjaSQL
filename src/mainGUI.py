@@ -106,7 +106,6 @@ def close_login_database_window():
     
 def close_execute_query_window():
     execute_query_window.destroy()
-    create_current_database_window() 
 
 def close_import_csv_window():
     import_csv_window.destroy() 
@@ -278,11 +277,10 @@ def execute_query_function():
     #current_database.delete(query_text.get(1.0, tk.END))
     if query_results:
         if query_results == "Query executada com sucesso!":
-            print("Label mostra?")
             query_result_label = tk.Label(query_db_frame, text=query_results)
             query_result_label.pack()
         else:
-            show_select_results(query_results)
+            show_select_results(list(query_results))
   
 
 def show_select_results(query_results: list):
@@ -293,14 +291,12 @@ def show_select_results(query_results: list):
     columns_len = len(query_columns)
     lines_len = len(query_results)
     result_table = np.zeros((lines_len, columns_len), dtype=object)
-    print("linhas: " + str(lines_len))
-    print("colunas: " + str(columns_len))
 
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
+            #result_table[i, j] = list(str(result[query_columns[j]]) for result in query_results[i])
             result_table[i, j] = str(query_results[i][query_columns[j]])
-            #result_table[i, j] = str(query_results[i][j])
     
     close_execute_query_window()
     create_query_results_window()
@@ -319,6 +315,7 @@ def create_query_results_window():
 
     query_results_frame = tk.Frame(query_results_window, pady=10)
     query_results_frame.pack(expand=True, fill=tk.BOTH)
+
     
     tree = ttk.Treeview(query_results_frame, columns=query_columns, show="headings")
 
