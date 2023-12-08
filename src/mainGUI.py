@@ -277,7 +277,6 @@ def execute_query_function():
     #current_database.delete(query_text.get(1.0, tk.END))
     if query_results:
         if query_results == "Query executada com sucesso!":
-            print("Label mostra?")
             query_result_label = tk.Label(query_db_frame, text=query_results)
             query_result_label.pack()
         else:
@@ -292,8 +291,6 @@ def show_select_results(query_results: list):
     columns_len = len(query_columns)
     lines_len = len(query_results)
     result_table = np.zeros((lines_len, columns_len), dtype=object)
-    print("linhas: " + str(lines_len))
-    print("colunas: " + str(columns_len))
 
     #Save result on table
     for i in range(result_table.shape[0]):
@@ -316,7 +313,7 @@ def create_query_results_window():
     query_results_window.transient(main_window)
     query_results_window.protocol("WM_DELETE_WINDOW", lambda: close_query_results_window())
 
-    query_results_frame = tk.Frame(canvas, pady=10)
+    query_results_frame = tk.Frame(query_results_window, pady=10)
     query_results_frame.pack(expand=True, fill=tk.BOTH)
 
     

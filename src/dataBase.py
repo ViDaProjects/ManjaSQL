@@ -40,14 +40,10 @@ class DataBase:
     def save_create_table_on_json(self, table: Table):
         table_dict = {}
         current_path = os.getcwd()
-        print(self.db_default_path)
         if self.db_default_path == "":
             self.db_default_path = current_path
         json_path = os.path.join(table.table_default_path, table.table_name + ".json")
         
-        print("Caminho do banco de dados")
-        print(json_path)
-
         table_dict['TABLE_ID'] = table.table_id
         table_dict['TABLE_NAME'] = table.table_name
         table_dict['COLUMNS'] = {}
@@ -142,24 +138,22 @@ class DataBase:
         if command[0] == "SELECT":
            #se select
             result = self.select(upper_query)
-        print(result)
         return result
         
-    def inner_join(table_a: Table, table_b: Table, on_column: str):
-        inner_join_table = []
+    def inner_join(self, table_a: Table, table_b: Table, on_column: str):
+        merged_data = []
 
-        for entry_1 in table_a["data"]:
-            for entry_2 in table_b["data"]:
-                if entry_1["id"] == entry_2["id"]:
+        for entry_1 in table_a.data_dict_list:
+            for entry_2 in table_b.data_dict_list:
+                if entry_1[on_column] == entry_2[on_column]:
                     merged_entry = {**entry_1, **entry_2}  # Merge dictionaries
-                    merged_data["data"].append(merged_entry)
+                    merged_data.append(merged_entry)
                     break  # Stop iterating over entries in data_2 if matched
-
+        
+        return merged_data
         # Convert merged data to JSON
-        merged_json = json.dumps(merged_data, indent=2)
-        return merged_json#
+        #merged_json = json.dumps(merged_data, indent=2)
 
-        return inner_join_table
     
     def execute_query_on_connection(self, query: str):
         self.cursor.execute(query)
@@ -220,7 +214,7 @@ class DataBase:
     def select(self, query: str):
         split_query = self.query_splitter(query)
         
-        key_words = ["SELECT", "DISTINCT", "FROM",  "WHERE", "GROUP", "BY", "HAVING", "ORDER", "BY", "INNER", "JOIN"]
+        key_words = ["SELECT", "DISTINCT", "FROM",  "WHERE", "GROUP", "BY", "ON", "ORDER", "BY", "INNER", "JOIN"]
         
         # Get field names
         field_names = []
@@ -234,26 +228,41 @@ class DataBase:
             field_names.append(split_query[i])
         
         self.field_names_from_select = field_names
-        print("field names no select")
-        print(field_names)
+
         # Get table names
         table_names = []
+        name = ""
         from_index = split_query.index(key_words[2])
+        selected_tables = []
         for i in range(from_index + 1, len(split_query)):
             if split_query[i] in key_words:
                 break
+            name = split_query[i]
             table_names.append(split_query[i])
-
-        #print(table_names)
-
+        
+        # Get table instances from select
+        for table in self.tables_list:
+            for name in table_names:
+                if table.table_name.upper() == name in table_names:
+                    selected_tables.append(table)
         selected = []
-        # Perform the select process
-        for table in self.tables_list: # Só está extraindo de uma tabela
-            if table_names[0] == table.table_name.upper():
-                #print(table.data_dict_list)
-                if len(table_names) == 1:
-                    selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
-                    
+
+        # Perform the select process 
+        # If it has inner join
+        if "INNER" in split_query:
+            if "ON" in split_query:
+                on_index = split_query.index("ON")
+                on_column = split_query[on_index + 1]
+                completed_join_table = self.inner_join(selected_tables[0], selected_tables[1], on_column)
+                selected = [{field: entry[field] for field in field_names} for entry in completed_join_table]
+
+        # If it has only one table   
+        else: 
+            for table in self.tables_list: 
+                if table_names[0] == table.table_name.upper():
+                    if len(table_names) == 1:
+                        selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
+
         # Deals with conditions declared by WHERE
         conditions = []
         if "WHERE" in split_query:
@@ -280,8 +289,6 @@ class DataBase:
             selected = unique_data
 
         self.field_names_from_select = field_names
-        print("field names no select")
-        print(field_names)
 
         order_field = []
         if "ORDER" in split_query:
@@ -290,9 +297,7 @@ class DataBase:
             reverse = False
             if "DESC" in split_query:
                 reverse = True
-            print(reverse)
             selected = sorted(selected, key=lambda x: x.get(order_field[0], ""), reverse = reverse)
-        print(selected)
         return selected
             
 
@@ -401,7 +406,6 @@ class DataBase:
         
         if where_index != len(split_query):
             conditions = split_query[split_query.index("WHERE") + 1:]
-        print(conditions)
 
         for table in self.tables_list:
             # If this is the correct table
@@ -449,10 +453,6 @@ class DataBase:
                 print(insert)
                 #USAR INSERT DATA
                 table.data_dict_list.append(insert)
-                print(table.data_dict_list)
-
-        #print(table.data_dict_list)
-    
 
     def login(self, user: str, password: str):
         return (self.user == user and self.password == password)
@@ -463,6 +463,7 @@ class DataBase:
         new_query = new_query.replace("ou", "or")
         new_query = new_query.replace("transformar", "set")
         new_query = new_query.replace("juntar interno", "inner join")
+        new_query = new_query.replace("por", "on")
         new_query = new_query.replace("inserir", "insert into")
         new_query = new_query.replace("e", "and")
         new_query = new_query.replace("organizar por", "order by")

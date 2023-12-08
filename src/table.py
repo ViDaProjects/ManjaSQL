@@ -144,6 +144,7 @@ class Table:
         existent_data = self.get_existent_table_json(db_name)
         existent_data['DATA'] = self.data_dict_list
 
+        print(json_path)
         json_string = json.dumps(existent_data, default=self.bytes_converter, indent=2)
 
         with open(json_path, 'w') as json_file:
