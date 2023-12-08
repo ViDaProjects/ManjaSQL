@@ -1,35 +1,28 @@
 import tkinter as tk
 
-def abrir_toplevel():
-    toplevel = tk.Toplevel(root)
-
+def create_scrolls():
+    global canvas 
+    window = query_results_window
     # Adiciona um canvas ao TopLevel
-    canvas = tk.Canvas(toplevel)
+    canvas = tk.Canvas(window)
     canvas.pack(side="left", fill="both", expand=True)
 
     # Adiciona uma barra de rolagem lateral ao TopLevel
-    scrollbar = tk.Scrollbar(toplevel, command=canvas.yview)
-    scrollbar.pack(side="right", fill="y")
+    scrollbar_y = tk.Scrollbar(window, command=canvas.yview)
+    scrollbar_y.pack(side="right", fill="y")
+    scrollbar_x = tk.Scrollbar(window, command=canvas.xview)
+    scrollbar_x.pack(side="bottom", fill="x")
 
     # Atualiza o método de rolagem do canvas para usar a barra de rolagem
-    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.configure(yscrollcommand=scrollbar_y.set)
+    canvas.configure(xscrollcommand=scrollbar_x.set)
 
     # Adicione widgets ou qualquer conteúdo ao Canvas
     # Exemplo: rótulos com texto de exemplo
-    for i in range(1, 21):
+    '''for i in range(1, 21):
         label = tk.Label(canvas, text=f"Item {i}")
         canvas.create_window(0, i * 20, anchor="nw", window=label)
-
+'''
     # Configura o método de rolagem do canvas para se ajustar ao conteúdo
     canvas.update_idletasks()
     canvas.config(scrollregion=canvas.bbox("all"))
-
-# Criação da janela principal
-root = tk.Tk()
-
-# Botão para abrir o TopLevel
-btn_abrir_toplevel = tk.Button(root, text="Abrir TopLevel", command=abrir_toplevel)
-btn_abrir_toplevel.pack(pady=10)
-
-# Inicia o loop principal
-root.mainloop()

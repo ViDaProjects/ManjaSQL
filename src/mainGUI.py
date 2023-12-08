@@ -106,7 +106,6 @@ def close_login_database_window():
     
 def close_execute_query_window():
     execute_query_window.destroy()
-    create_current_database_window() 
 
 def close_import_csv_window():
     import_csv_window.destroy() 
@@ -317,8 +316,9 @@ def create_query_results_window():
     query_results_window.transient(main_window)
     query_results_window.protocol("WM_DELETE_WINDOW", lambda: close_query_results_window())
 
-    query_results_frame = tk.Frame(query_results_window, pady=10)
+    query_results_frame = tk.Frame(canvas, pady=10)
     query_results_frame.pack(expand=True, fill=tk.BOTH)
+
     
     tree = ttk.Treeview(query_results_frame, columns=query_columns, show="headings")
 
