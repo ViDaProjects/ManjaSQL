@@ -218,7 +218,7 @@ def show_all_saved_data(k: int):
     global query_columns, result_table
     current_table = current_database.tables_list[k]
     current_database_window.destroy()
-    query_columns = list(field.field_name for field in current_table.fields_list)
+    query_columns = list(field.field_name.upper() for field in current_table.fields_list)
     
     columns_length = len(query_columns)
     lines_length = len(current_table.data_dict_list)
