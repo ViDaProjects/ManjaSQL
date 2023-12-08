@@ -104,16 +104,17 @@ class Table:
 
     #Same length of indexes and data
     def insert_data(self, indexes: List, data: List, is_csv: bool, db_name: str):
-        #upper_indexes = [word.upper() for word in indexes]
+        upper_indexes = [word.upper() for word in indexes]
         data_current_dict = {}
         if len(indexes) == len(data):
             if is_csv:
-                for index in indexes:
-                    #data_current_dict[upper_indexes[i]] = data[index]
-                    data_current_dict[index] = data[index]
+                for i, index in enumerate(indexes):
+                    data_current_dict[upper_indexes[i]] = data[index]
+                    #data_current_dict[index] = data[index]
             else:
                 for i, index in enumerate(indexes):
-                    data_current_dict[index] = data[i]                
+                    data_current_dict[upper_indexes[i]] = data[i]
+                    #data_current_dict[index] = data[i]                
             self.data_dict_list.append(data_current_dict)
             self.save_table_data_on_json(data_current_dict, db_name)
         else:
