@@ -157,7 +157,7 @@ class DataBase:
 
         # Convert merged data to JSON
         merged_json = json.dumps(merged_data, indent=2)
-        return merged_json
+        return merged_json#
 
     
     def execute_query_on_connection(self, query: str):
