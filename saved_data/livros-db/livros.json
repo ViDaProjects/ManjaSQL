@@ -1,9 +1,9 @@
 {
-  "TABLE_ID": "table_1_db_1",
+  "TABLE_ID": "table_0_db_1",
   "TABLE_NAME": "livros",
   "COLUMNS": {
     "LIVRO_ID": {
-      "FIELD_ID": "field_0_table_1_db_1",
+      "FIELD_ID": "field_0_table_0_db_1",
       "FIELD_NAME": "LIVRO_ID",
       "TYPE": "smallint",
       "CONSTRAINTS": "NO",
@@ -12,7 +12,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "TITULO": {
-      "FIELD_ID": "field_1_table_1_db_1",
+      "FIELD_ID": "field_1_table_0_db_1",
       "FIELD_NAME": "TITULO",
       "TYPE": "varchar(150)",
       "CONSTRAINTS": "NO",
@@ -21,7 +21,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "AUTOR": {
-      "FIELD_ID": "field_2_table_1_db_1",
+      "FIELD_ID": "field_2_table_0_db_1",
       "FIELD_NAME": "AUTOR",
       "TYPE": "varchar(150)",
       "CONSTRAINTS": "NO",
@@ -30,7 +30,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "EDICAO": {
-      "FIELD_ID": "field_3_table_1_db_1",
+      "FIELD_ID": "field_3_table_0_db_1",
       "FIELD_NAME": "EDICAO",
       "TYPE": "smallint",
       "CONSTRAINTS": "NO",
@@ -39,7 +39,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "ANO": {
-      "FIELD_ID": "field_4_table_1_db_1",
+      "FIELD_ID": "field_4_table_0_db_1",
       "FIELD_NAME": "ANO",
       "TYPE": "smallint",
       "CONSTRAINTS": "NO",
@@ -48,7 +48,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "EDITORA": {
-      "FIELD_ID": "field_5_table_1_db_1",
+      "FIELD_ID": "field_5_table_0_db_1",
       "FIELD_NAME": "EDITORA",
       "TYPE": "varchar(50)",
       "CONSTRAINTS": "NO",
@@ -57,7 +57,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "GENERO_ID": {
-      "FIELD_ID": "field_6_table_1_db_1",
+      "FIELD_ID": "field_6_table_0_db_1",
       "FIELD_NAME": "GENERO_ID",
       "TYPE": "smallint",
       "CONSTRAINTS": "NO",
@@ -66,7 +66,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "DESCRICAO": {
-      "FIELD_ID": "field_7_table_1_db_1",
+      "FIELD_ID": "field_7_table_0_db_1",
       "FIELD_NAME": "DESCRICAO",
       "TYPE": "varchar(450)",
       "CONSTRAINTS": "NO",
@@ -75,7 +75,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "PRECO": {
-      "FIELD_ID": "field_8_table_1_db_1",
+      "FIELD_ID": "field_8_table_0_db_1",
       "FIELD_NAME": "PRECO",
       "TYPE": "decimal(15,2)",
       "CONSTRAINTS": "NO",
@@ -84,7 +84,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "ESTOQUE": {
-      "FIELD_ID": "field_9_table_1_db_1",
+      "FIELD_ID": "field_9_table_0_db_1",
       "FIELD_NAME": "ESTOQUE",
       "TYPE": "smallint",
       "CONSTRAINTS": "NO",
@@ -93,7 +93,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "RESERVA": {
-      "FIELD_ID": "field_10_table_1_db_1",
+      "FIELD_ID": "field_10_table_0_db_1",
       "FIELD_NAME": "RESERVA",
       "TYPE": "smallint",
       "CONSTRAINTS": "NO",
@@ -102,7 +102,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "CAPA": {
-      "FIELD_ID": "field_11_table_1_db_1",
+      "FIELD_ID": "field_11_table_0_db_1",
       "FIELD_NAME": "CAPA",
       "TYPE": "mediumblob",
       "CONSTRAINTS": "YES",

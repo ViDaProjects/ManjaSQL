@@ -40,9 +40,13 @@ class DataBase:
     def save_create_table_on_json(self, table: Table):
         table_dict = {}
         current_path = os.getcwd()
+        print(self.db_default_path)
         if self.db_default_path == "":
             self.db_default_path = current_path
         json_path = os.path.join(table.table_default_path, table.table_name + ".json")
+        
+        print("Caminho do banco de dados")
+        print(json_path)
 
         table_dict['TABLE_ID'] = table.table_id
         table_dict['TABLE_NAME'] = table.table_name
@@ -101,6 +105,7 @@ class DataBase:
 
         #Populate current table
         for data in dataframe.to_dict('records'):
+            #NOVO INSERT DATA 
             current_table.insert_data(columns, data, True, self.db_name)
 
  
@@ -177,14 +182,15 @@ class DataBase:
         self.cursor.execute(f"DESCRIBE "+ table.table_name)
         #get name and data type from field
         fields = [table.create_field(field[0], field[1], field[2], self.db_name) for field in self.cursor.fetchall()]
+        return fields
 
     def create_table_instances_from_connection(self):
         table_names = self.get_table_names_from_connection()
 
         for table_name in table_names:
             table = self.create_table(str(table_name))
-            self.create_table_fields_from_connection(table)
-            self.populate_table_data(table)
+            fields = self.create_table_fields_from_connection(table)
+            self.populate_table_data(table, fields)
 
     def get_data_from_connected_database(self):
         message = self.connect_to_database()
@@ -193,12 +199,18 @@ class DataBase:
 
         return message
 
-    def populate_table_data(self, table: Table):
+    def populate_table_data(self, table: Table, fields: List):
+        #fields_names = list(field.field_name for field in fields)
+        #selected_fields = str(', '.join(fields_names))
+        #print("SELECT " + selected_fields + " FROM " + table.table_name)
         self.cursor.execute(f"SELECT * FROM " + table.table_name)
+        print(self.cursor)
         all_table_data = self.cursor.fetchall() 
-        for data in all_table_data:
-            indexes = list(field.field_name for field in  table.fields_list)
-            table.insert_data(indexes, data, False, self.db_name)
+        indexes = list(field.field_name for field in  table.fields_list)
+        #for data in all_table_data:
+        #    table.insert_data(indexes, data, False, self.db_name)
+            #USAR NOVO INSERT DATA 
+        table.insert_data_from_existent_db(indexes, all_table_data, False, self.db_name)
 
     def select(self, query: str):
         split_query = self.query_splitter(query)

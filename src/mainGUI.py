@@ -282,7 +282,7 @@ def execute_query_function():
             query_result_label = tk.Label(query_db_frame, text=query_results)
             query_result_label.pack()
         else:
-            show_select_results(query_results)
+            show_select_results(list(query_results))
   
 
 def show_select_results(query_results: list):
@@ -299,8 +299,8 @@ def show_select_results(query_results: list):
     #Save result on table
     for i in range(result_table.shape[0]):
         for j in range(result_table.shape[1]):
-            result_table[i, j] = (str(result) for result in query_results[i])
-            #result_table[i, j] = str(query_results[i][j])
+            #result_table[i, j] = list(str(result[query_columns[j]]) for result in query_results[i])
+            result_table[i, j] = str(query_results[i][query_columns[j]])
     
     close_execute_query_window()
     create_query_results_window()

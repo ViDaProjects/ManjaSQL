@@ -1,9 +1,9 @@
 {
-  "TABLE_ID": "table_0_db_1",
+  "TABLE_ID": "table_4_db_1",
   "TABLE_NAME": "generos",
   "COLUMNS": {
     "GENERO_ID": {
-      "FIELD_ID": "field_0_table_0_db_1",
+      "FIELD_ID": "field_0_table_4_db_1",
       "FIELD_NAME": "GENERO_ID",
       "TYPE": "smallint",
       "CONSTRAINTS": "NO",
@@ -12,7 +12,7 @@
       "FOREIGIN CONSTRAINTS": ""
     },
     "DESCRICAO": {
-      "FIELD_ID": "field_1_table_0_db_1",
+      "FIELD_ID": "field_1_table_4_db_1",
       "FIELD_NAME": "DESCRICAO",
       "TYPE": "varchar(30)",
       "CONSTRAINTS": "NO",
