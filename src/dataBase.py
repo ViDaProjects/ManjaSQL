@@ -216,9 +216,6 @@ class DataBase:
                 break
             field_names.append(split_query[i])
         
-        self.field_names_from_select = field_names
-        print("field names no select")
-        print(field_names)
         # Get table names
         table_names = []
         from_index = split_query.index(key_words[2])
@@ -234,9 +231,18 @@ class DataBase:
         for table in self.tables_list: # Só está extraindo de uma tabela
             if table_names[0] == table.table_name.upper():
                 #print(table.data_dict_list)
-                if len(table_names) == 1:
-                    selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
-                    
+                selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
+            
+        selected2 = []
+        if len(table_names) >= 2:
+            for table in self.tables_list: # Só está extraindo de uma tabela
+                if table_names[1] == table.table_name.upper():
+                    #print(table.data_dict_list)
+                    selected2 = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
+
+            selected = [f"{elem1} {elem2}" for elem1, elem2 in zip(selected, selected2)]
+
+        
         # Deals with conditions declared by WHERE
         conditions = []
         if "WHERE" in split_query:
@@ -246,6 +252,8 @@ class DataBase:
                     break
                 conditions.append(split_query[i])
         
+        # Check for multiple table conditions and remove them from conditions
+
         condition_selected = []
         for table in self.tables_list:
             if table.table_name.upper() == table_names[0]:
@@ -263,19 +271,17 @@ class DataBase:
             selected = unique_data
 
         self.field_names_from_select = field_names
-        print("field names no select")
-        print(field_names)
 
         order_field = []
         if "ORDER" in split_query:
             order_index = split_query.index(key_words[7])    
             order_field.append(split_query[order_index + 2])
             reverse = False
+
             if "DESC" in split_query:
                 reverse = True
-            print(reverse)
             selected = sorted(selected, key=lambda x: x.get(order_field[0], ""), reverse = reverse)
-        print(selected)
+
         return selected
             
 
