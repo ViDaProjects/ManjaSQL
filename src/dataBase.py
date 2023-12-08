@@ -146,14 +146,19 @@ class DataBase:
         return result
         
     def inner_join(self, table_a: Table, table_b: Table, on_column: str):
-        inner_join_table = []
+        merged_data = {"data": []}
 
-        for row_a in table_a.data_dict_list:
-            for row_b in table_b.data_dict_list:
-                if row_a[on_column] == row_b[on_column]:
-                    inner_join_table.append({row_a, row_b})  # Merge os dicionários
+        for entry_1 in table_a["data"]:
+            for entry_2 in table_b["data"]:
+                if entry_1["id"] == entry_2["id"]:
+                    merged_entry = {**entry_1, **entry_2}  # Merge dictionaries
+                    merged_data["data"].append(merged_entry)
+                    break  # Stop iterating over entries in data_2 if matched
 
-        return inner_join_table
+        # Convert merged data to JSON
+        merged_json = json.dumps(merged_data, indent=2)
+        return merged_json
+
     
     def execute_query_on_connection(self, query: str):
         self.cursor.execute(query)
@@ -246,11 +251,9 @@ class DataBase:
                     table1 = table
                 elif table_names[1] == table.table_name.upper():
                     table2 = table
-            print(type(table1))
-            print(type(table2))
             joint_table = self.inner_join(table1, table2, split_query[inner_index + 2])
             selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
-
+            
         else:
             # Perform the select process
             for table in self.tables_list: # Só está extraindo de uma tabela

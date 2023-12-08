@@ -27,4 +27,4 @@ desc: desc
 
 This language is, unfortunately, not as modular as real sql, so, during "select" commands it is important that present fields get filled in the correct order, that is:
 
-agarrar, de, donde, distinto e organizar por
+agarrar, distinto, de, donde e organizar por
