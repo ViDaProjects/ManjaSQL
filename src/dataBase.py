@@ -106,9 +106,10 @@ class DataBase:
         current_table.import_fields_from_csv(fields)
 
         #Populate current table
-        for data in dataframe.to_dict('records'):
+        #for data in dataframe.to_dict('records'):
             #NOVO INSERT DATA 
-            current_table.insert_data_from_existent_db(columns, data, True, self.db_name)
+        data = dataframe.to_dict('records')
+        current_table.insert_data_from_existent_db(columns, data, True, self.db_name)
 
  
     #Só funciona com uma palavra

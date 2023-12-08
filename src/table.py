@@ -121,23 +121,20 @@ class Table:
  
     def insert_data_from_existent_db(self, indexes: List, all_table_data: List, is_csv: bool, db_name: str):
         upper_indexes = [word.upper() for word in indexes]
-        data_current_dict = {}
-        print(upper_indexes)
+        
         if is_csv:
             for data in all_table_data:
+                data_current_dict = {}
                 for i, index in enumerate(indexes):
-                    #data_current_dict[index] = data[index]
                     data_current_dict[upper_indexes[i]] = data[index]
                 self.data_dict_list.append(data_current_dict)    
         else:
             for data in all_table_data:
+                data_current_dict = {}
                 for i, index in enumerate(indexes):
-                    #data_current_dict[index] = data[i]
                     data_current_dict[upper_indexes[i]] = data[i]   
-                #print(data_current_dict)             
                 self.data_dict_list.append(data_current_dict)
-                print(self.data_dict_list)
-        
+             
         #Only one save for all data
         self.save_table_data_on_json(self.data_dict_list, db_name)
 
