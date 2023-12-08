@@ -145,20 +145,15 @@ class DataBase:
         print(result)
         return result
         
-    def inner_join(self, table_a: Table, table_b: Table, on_column: str):
-        merged_data = {"data": []}
+    def inner_join(table_a: Table, table_b: Table, on_column: str):
+        inner_join_table = []
 
-        for entry_1 in table_a["data"]:
-            for entry_2 in table_b["data"]:
-                if entry_1["id"] == entry_2["id"]:
-                    merged_entry = {**entry_1, **entry_2}  # Merge dictionaries
-                    merged_data["data"].append(merged_entry)
-                    break  # Stop iterating over entries in data_2 if matched
+        for row_a in table_a.data_dict_list:
+            for row_b in table_b.data_dict_list:
+                if row_a[on_column] == row_b[on_column]:
+                    inner_join_table.append({row_a, row_b})  # Merge os dicionários
 
-        # Convert merged data to JSON
-        merged_json = json.dumps(merged_data, indent=2)
-        return merged_json
-
+        return inner_join_table
     
     def execute_query_on_connection(self, query: str):
         self.cursor.execute(query)
@@ -232,6 +227,9 @@ class DataBase:
                 break
             field_names.append(split_query[i])
         
+        self.field_names_from_select = field_names
+        print("field names no select")
+        print(field_names)
         # Get table names
         table_names = []
         from_index = split_query.index(key_words[2])
@@ -240,25 +238,14 @@ class DataBase:
                 break
             table_names.append(split_query[i])
 
+        #print(table_names)
 
         selected = []
-        # if inner join was called than perform inner join
-        if "INNER" in split_query:
-            inner_index = split_query.index(key_words[9])
-            for table in self.tables_list: # Só está extraindo de uma tabela
-                if table_names[0] == table.table_name.upper():
+        # Perform the select process
+        for table in self.tables_list: # Só está extraindo de uma tabela
+            if table_names[0] == table.table_name.upper():
                 #print(table.data_dict_list)
-                    table1 = table
-                elif table_names[1] == table.table_name.upper():
-                    table2 = table
-            joint_table = self.inner_join(table1, table2, split_query[inner_index + 2])
-            selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
-            
-        else:
-            # Perform the select process
-            for table in self.tables_list: # Só está extraindo de uma tabela
-                if table_names[0] == table.table_name.upper():
-                    #print(table.data_dict_list)
+                if len(table_names) == 1:
                     selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
                     
         # Deals with conditions declared by WHERE
@@ -270,8 +257,6 @@ class DataBase:
                     break
                 conditions.append(split_query[i])
         
-        # Check for multiple table conditions and remove them from conditions
-
         condition_selected = []
         for table in self.tables_list:
             if table.table_name.upper() == table_names[0]:
@@ -289,17 +274,19 @@ class DataBase:
             selected = unique_data
 
         self.field_names_from_select = field_names
+        print("field names no select")
+        print(field_names)
 
         order_field = []
         if "ORDER" in split_query:
             order_index = split_query.index(key_words[7])    
             order_field.append(split_query[order_index + 2])
             reverse = False
-
             if "DESC" in split_query:
                 reverse = True
+            print(reverse)
             selected = sorted(selected, key=lambda x: x.get(order_field[0], ""), reverse = reverse)
-
+        print(selected)
         return selected
             
 
