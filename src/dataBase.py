@@ -145,19 +145,17 @@ class DataBase:
         print(result)
         return result
         
-    def inner_join(self, table_a: Table, table_b: Table, on_column: str):
-        merged_data = {"data": []}
+    def inner_join(self, table_a, table_b, on_column: str):
+        merged_data = []
 
-        for entry_1 in table_a["data"]:
-            for entry_2 in table_b["data"]:
-                if entry_1["id"] == entry_2["id"]:
-                    merged_entry = {**entry_1, **entry_2}  # Merge dictionaries
-                    merged_data["data"].append(merged_entry)
-                    break  # Stop iterating over entries in data_2 if matched
+        for entry_1 in table_a:
+            for entry_2 in table_b:
+                if entry_1[on_column] == entry_2[on_column]:
+                    merged_entry = {**entry_1, **entry_2}
+                    merged_data.append(merged_entry)
+                    break
 
-        # Convert merged data to JSON
-        merged_json = json.dumps(merged_data, indent=2)
-        return merged_json#
+        return merged_data
 
     
     def execute_query_on_connection(self, query: str):
@@ -248,12 +246,11 @@ class DataBase:
             for table in self.tables_list: # Só está extraindo de uma tabela
                 if table_names[0] == table.table_name.upper():
                 #print(table.data_dict_list)
-                    table1 = table
+                    selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
                 elif table_names[1] == table.table_name.upper():
-                    table2 = table
-            joint_table = self.inner_join(table1, table2, split_query[inner_index + 2])
-            selected = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
-            
+                    selected2 = [{field: entry[field] for field in field_names} for entry in table.data_dict_list]
+            selected = self.inner_join(selected, selected2, split_query[inner_index + 2])
+
         else:
             # Perform the select process
             for table in self.tables_list: # Só está extraindo de uma tabela
@@ -465,11 +462,12 @@ class DataBase:
         return (self.user == user and self.password == password)
        
     def translator(self, query: str):
+        
         new_query = query.upper()
         
         new_query = new_query.replace("ou", "or")
         new_query = new_query.replace("transformar", "set")
-        new_query = new_query.replace("juntar interno", "inner join")
+        new_query = new_query.replace("juntar interno em", "inner join on")
         new_query = new_query.replace("inserir", "insert into")
         new_query = new_query.replace("e", "and")
         new_query = new_query.replace("organizar por", "order by")
@@ -478,7 +476,12 @@ class DataBase:
         new_query = new_query.replace("modificar", "update")
         new_query = new_query.replace("apagar", "delete from")
         new_query = new_query.replace("agarrar", "select") 
-        new_query = new_query.replace("valores", "values")        
+        new_query = new_query.replace("valores", "values") 
+        new_query = new_query.replace("de", "from") 
+        new_query = new_query.replace("distinto", "distinct")  
+
+        print(query)
+        print()
 
         return new_query
 
